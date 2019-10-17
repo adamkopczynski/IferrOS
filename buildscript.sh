@@ -15,7 +15,7 @@ do
 	temp=$(echo "${file%.*}")
 	name=$(echo $temp | sed 's/^..//')
 	echo "Compilling $name"
-	i686-elf-gcc -c $name.c -o ../build/$name.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter
+	i686-elf-gcc -c $name.c -o build/$name.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter
 done
 
 echo "Compile stdlib files"
