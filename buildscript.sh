@@ -2,6 +2,8 @@
 
 export PATH="$HOME/opt/cross/bin:$PATH"
 
+mkdir build
+
 echo "Compile stdlib files"
 cd stdlib
 
@@ -29,4 +31,4 @@ cp grub.cfg isodir/boot/grub/grub.cfg
 grub-mkrescue -o iferros.iso isodir
 
 echo "Run qemu emulator"
-qemu-system-i386 -cdrom myos.iso
+qemu-system-i386 -cdrom iferros.iso
