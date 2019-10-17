@@ -15,6 +15,8 @@ do
 	i686-elf-gcc -c $name.c -o ../build/$name.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter
 done
 
+cd ..
+
 echo "Compile asembler files"
 i686-elf-as boot.s -o build/boot.o
 
