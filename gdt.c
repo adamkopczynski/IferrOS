@@ -1,9 +1,5 @@
 #include "gdt.h"
 
-GDT[0] = {.base=0, .limit=0, .type=0};                     // Selector 0x00 cannot be used
-GDT[1] = {.base=0, .limit=0xffffffff, .type=0x9A};         // Selector 0x08 will be our code
-GDT[2] = {.base=0, .limit=0xffffffff, .type=0x92};         // Selector 0x10 will be our data
-GDT[3] = {.base=&myTss, .limit=sizeof(myTss), .type=0x89}; // You can use LTR(0x18)
 
 void encodeGDTEntry(uint8_t *target, segment_t *source){
     // Check the limit to make sure that it can be encoded
