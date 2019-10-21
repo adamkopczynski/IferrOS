@@ -2,6 +2,7 @@
 
 export PATH="$HOME/opt/cross/bin:$PATH"
 
+rm -rf build
 mkdir build
 
 echo "Compile asembler files"
