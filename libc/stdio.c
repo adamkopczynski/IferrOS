@@ -5,7 +5,7 @@
 int print_i(int32_t arg);
 int print_f(double arg);
 int print_string(char* str);
-int get_digit_at(const int32_t, int);
+int get_digit_at(const uint32_t, int);
 
 
 int printf(const char* format, ...){
@@ -125,7 +125,7 @@ int print_string(char* str){
   return count;
 }
 
-int get_digit_at(const int32_t nr, int pos){
+int get_digit_at(const uint32_t nr, int pos){
 
   int len = log10(nr)+1;
   int32_t copy = nr;
