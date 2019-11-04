@@ -24,7 +24,7 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
 
 void terminal_initialize(void){
 
-	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_DARK_GREY);
+	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREEN, VGA_COLOR_BLACK);
 
 	for (size_t y = 0; y < VGA_HEIGHT; y++) {
 		for (size_t x = 0; x < VGA_WIDTH; x++) {
