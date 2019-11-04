@@ -19,8 +19,8 @@ do
 	i686-elf-gcc -c $name.c -o build/$name.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra -Wno-unused-function -Wno-unused-variable -Wno-unused-parameter
 done
 
-echo "Compile stdlib files"
-cd stdlib
+echo "Compile libc files"
+cd libc
 
 for file in $(find . -maxdepth 1 -type f -name "*.c")
 do

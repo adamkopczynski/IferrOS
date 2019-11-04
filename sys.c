@@ -20,7 +20,7 @@ void kernel_panic(const char *message)
 
     // Message
     terminal_setcolor(VGA_COLOR_RED);
-    display_center(message);
+    printf(message);
 
     // Stop system
     while(1) asm("hlt");
