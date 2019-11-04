@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "terminal.h"
-#include "stdlib/string.h"
+#include "libc/string.h"
 
 //Terminal static methods
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg);

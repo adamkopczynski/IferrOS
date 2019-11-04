@@ -17,24 +17,44 @@ forced to be within the first 8 KiB of the kernel file.
 .long MAGIC
 .long FLAGS
 .long CHECKSUM
- 
-/*
-The multiboot standard does not define the value of the stack pointer register
-(esp) and it is up to the kernel to provide a stack. This allocates room for a
-small stack by creating a symbol at the bottom of it, then allocating 16384
-bytes for it, and finally creating a symbol at the top. The stack grows
-downwards on x86. The stack is in its own section so it can be marked nobits,
-which means the kernel file is smaller because it does not contain an
-uninitialized stack. The stack on x86 must be 16-byte aligned according to the
-System V ABI standard and de-facto extensions. The compiler will assume the
-stack is properly aligned and failure to align the stack will result in
-undefined behavior.
-*/
+
+//Create stack of 16 KiB size
 .section .bss
 .align 16
 stack_bottom:
 .skip 16384 # 16 KiB
 stack_top:
+
+//GDTR
+	gdtr DW 0 ; For limit storage
+     	DD 0 ; For base storage
+
+//IDTR
+	idtr DW 0 ; For limit storage
+     	DD 0 ; For base storage
+
+//Multiboot structure address
+multiboot_info:
+.long 0
+
+.text
+
+.global get_multibot_info
+.type get_multibot_info, @function
+get_multibot_info:
+	movl multiboot_info, %eax
+	ret
+
+//Call from C as setGdt(gdt, sizeof(gdt)-1)
+.global setGdt
+.type setGdt, @function
+setGdt:
+	MOV   EAX, [esp + 4]
+	MOV   [gdtr + 2], EAX
+	MOV   AX, [ESP + 8]
+	MOV   [gdtr], AX
+	LGDT  [gdtr]
+	RET
  
 /*
 The linker script specifies _start as the entry point to the kernel and the
@@ -65,21 +85,6 @@ _start:
 	*/
 	mov $stack_top, %esp
  
-	//GDT
-	gdtr DW 0 ; For limit storage
-     	DD 0 ; For base storage
-	
-	//Call from C as setGdt(gdt, sizeof(gdt)-1)
-	.global setGdt
-	.type setGdt, @function
-	setGdt:
-		MOV   EAX, [esp + 4]
-		MOV   [gdtr + 2], EAX
-		MOV   AX, [ESP + 8]
-		MOV   [gdtr], AX
-		LGDT  [gdtr]
-		RET
-
 	//Reload CS register containing code selector:
 	.global reload_segments   
 	.type reload_segments, @function
