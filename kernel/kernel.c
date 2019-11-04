@@ -15,7 +15,7 @@ void kernel_main(void)
     /* Initialize terminal interface */
     terminal_initialize();
     multiboot_initialize();
-    gdt_initialize();
+    // gdt_initialize();
 
     printf("Kernel initialized!\nHello in IferrOS");
 }

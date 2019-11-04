@@ -1,9 +1,12 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "gdt.h"
+#include "libc/stdio.h"
 
 void gdt_initialize(void){
 
+    printf("Initialize GDT\n");
+    
     //Non-used sector
     segments[0] = (segment_t){
         .base = 0,

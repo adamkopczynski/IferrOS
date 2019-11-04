@@ -49,10 +49,11 @@ segment_t segments[GDT_SIZE];
 //Global descriptors table
 gdt_entry_t GDT[GDT_SIZE];
 
+extern void setGdt(uint32_t gdt, uint16_t gdt_size);
+extern void reload_segments(void);
+
 void gdt_initialize(void);
 void encode_gdt_entry(gdt_entry_t* target, segment_t* source);
 void create_descriptor(uint32_t base, uint32_t limit, uint16_t flag);
-extern void setGdt(uint32_t gdt, uint16_t gdt_size);
-extern void reload_segments(void);
 
 #endif
