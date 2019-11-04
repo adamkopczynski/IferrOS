@@ -26,12 +26,14 @@ stack_bottom:
 stack_top:
 
 //GDTR
-	gdtr DW 0 ; For limit storage
-     	DD 0 ; For base storage
+gdtr:
+.word 0
+.long 0
 
 //IDTR
-	idtr DW 0 ; For limit storage
-     	DD 0 ; For base storage
+ldtr:
+.word 0
+.long 0
 
 //Multiboot structure address
 multiboot_info:
@@ -49,74 +51,47 @@ get_multibot_info:
 .global setGdt
 .type setGdt, @function
 setGdt:
-	MOV   EAX, [esp + 4]
-	MOV   [gdtr + 2], EAX
-	MOV   AX, [ESP + 8]
-	MOV   [gdtr], AX
-	LGDT  [gdtr]
-	RET
+	mov   4(%esp), %eax
+   	mov   %eax, gdtr+2
+   	mov   8(%esp), %ax
+   	mov   %ax, gdtr
+   	lgdt  gdtr
+   	ret
  
-/*
-The linker script specifies _start as the entry point to the kernel and the
-bootloader will jump to this position once the kernel has been loaded. It
-doesn't make sense to return from this function as the bootloader is gone.
-*/
-.section .text
+.global reload_segments   
+.type reload_segments, @function
+reload_segments:
+	ljmp   $0x8, $reload_CS
+.global reload_CS
+reload_CS:
+   MOV   $0x10, %ax
+   MOV   %ax, %ds
+   MOV   %ax, %es
+   MOV   %ax, %fs
+   MOV   %ax, %gs
+   MOV   %ax, %ss
+   RET
+
+
+.type enter_protection_mode, @function
+enter_protected_mode:
+	mov	%cr0, %eax
+	or	$0x01, %eax
+	mov	%eax, %cr0
+	ret
+ 
+// Wykonywanie rozpoczyna się od tej procedury
 .global _start
-.type _start, @function
+.type _start, @function			
 _start:
-	/*
-	The bootloader has loaded us into 32-bit protected mode on a x86
-	machine. Interrupts are disabled. Paging is disabled. The processor
-	state is as defined in the multiboot standard. The kernel has full
-	control of the CPU. The kernel can only make use of hardware features
-	and any code it provides as part of itself. There's no printf
-	function, unless the kernel provides its own <stdio.h> header and a
-	printf implementation. There are no security restrictions, no
-	safeguards, no debugging mechanisms, only what the kernel provides
-	itself. It has absolute and complete power over the
-	machine.
-	*/
+	mov %ebx, multiboot_info
+	cli 									
+	call enter_protected_mode		
+	mov $stack_top, %esp		  		
+	call kernel_main			   
+			
+1:	hlt     				  			
+	jmp 1b							
  
-	/*
-	To set up a stack, we set the esp register to point to the top of the
-	stack (as it grows downwards on x86 systems). This is necessarily done
-	in assembly as languages such as C cannot function without a stack.
-	*/
-	mov $stack_top, %esp
- 
-	//Reload CS register containing code selector:
-	.global reload_segments   
-	.type reload_segments, @function
-	reloadSegments:
-		JMP   0x08:reload_CS ; 0x08 points at the new code selector
-	.reload_CS:
-		; Reload data segment registers:
-		MOV   AX, 0x10 ; 0x10 points at the new data selector
-		MOV   DS, AX
-		MOV   ES, AX
-		MOV   FS, AX
-		MOV   GS, AX
-		MOV   SS, AX
-		RET
- 
-	/*
-	Enter the high-level kernel. The ABI requires the stack is 16-byte
-	aligned at the time of the call instruction (which afterwards pushes
-	the return pointer of size 4 bytes). The stack was originally 16-byte
-	aligned above and we've pushed a multiple of 16 bytes to the
-	stack since (pushed 0 bytes so far), so the alignment has thus been
-	preserved and the call is well defined.
-	*/
-	call kernel_main
- 
-	cli
-1:	hlt
-	jmp 1b
- 
-/*
-Set the size of the _start symbol to the current location '.' minus its start.
-This is useful when debugging or when you implement call tracing.
-*/
 .size _start, . - _start
 

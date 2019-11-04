@@ -5,10 +5,10 @@
 #include "kernel.h"
 #include "../multiboot.h"
 #include "../terminal.h"
-#include "../gdt.h";
+#include "../gdt.h"
 
 //Libc
-#include "../libc/stdio.h";
+#include "../libc/stdio.h"
 
 void kernel_main(void)
 {
