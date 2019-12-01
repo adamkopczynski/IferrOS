@@ -4,6 +4,7 @@
 extern unsigned int get_multibot_info(void);
 
 void multiboot_initialize(void);
+struct multiboot_info *multiboot_get_struct(void);
 
 // Multiboot header file from https://www.gnu.org/software/grub/manual/multiboot/html_node/multiboot_002eh.html
 /* How many bytes from the start of the file we search for the header. */

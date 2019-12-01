@@ -6,6 +6,7 @@
 #include "../multiboot.h"
 #include "../terminal.h"
 #include "../gdt.h"
+#include "../paging.h"
 
 //Libc
 #include "../libc/stdio.h"
@@ -15,7 +16,8 @@ void kernel_main(void)
     /* Initialize terminal interface */
     terminal_initialize();
     multiboot_initialize();
-    // gdt_initialize();
+    init_gdt();
+    paging_initialize();
 
     printf("Kernel initialized!\nHello in IferrOS");
 }

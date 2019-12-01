@@ -9,7 +9,13 @@ mkdir isodir
 mkdir build
 
 echo "Compile asembler files"
-i686-elf-as boot.s -o build/boot.o
+for file in $(find . -maxdepth 1 -type f -name "*.s")
+do
+	temp=$(echo "${file%.*}")
+	name=$(echo $temp | sed 's/^..//')
+	echo "Compilling $name"
+	i686-elf-as $name.s -o build/$name.o
+done
 
 echo "Compile kernel files"
 i686-elf-gcc -c kernel/kernel.c -o build/kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra

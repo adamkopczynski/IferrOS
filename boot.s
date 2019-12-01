@@ -1,6 +1,6 @@
 //Multiboot constants
-.set 		ALIGN,    	0x01        
-.set 		MEMINFO,  	0x10             
+.set 		ALIGN,    	1<<0        
+.set 		MEMINFO,  	1<<1            
 .set 		FLAGS,    	ALIGN | MEMINFO  
 .set 		MAGIC,    	0x1BADB002       
 .set 		CHECKSUM, 	-(MAGIC + FLAGS) 
@@ -22,7 +22,7 @@
 multiboot_info:
 .long 0
 
-.text
+.section .text
 
 // Get multiboot info address pointer
 .global get_multibot_info

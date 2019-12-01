@@ -1,14 +1,16 @@
-#include "gdt.h"
 #include <stdint.h>
+#include "gdt.h"
 #include "libc/stdio.h"
 
 gdt_entry_t gdt_entries[5];
 gdt_ptr_t   gdt_ptr;
 
+// Internal function prototypes.
+static void gdt_set_gate(int32_t,uint32_t,uint32_t,uint8_t,uint8_t);
 
 void init_gdt(){
 
-    printf("Initialize GDT");
+    printf("Initialize GDT: \n");
     gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
     gdt_ptr.base = (uint32_t)&gdt_entries;
 
@@ -23,13 +25,14 @@ void init_gdt(){
       0xCF == 1100 1111  == 1   1   0   0  ~
     */
 
+    printf("[+] Create GDT entries\n");
     gdt_set_gate(0,0,0,0,0);                    //Null segment
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); //Code segment
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF); //Data segment
     gdt_set_gate(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); //User mode code segment
     gdt_set_gate(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); //User mode data segment
 
-    printf("Load GDT");
+    printf("[+] Load GDT\n");
     load_gdt(&gdt_ptr);
 }
 
