@@ -3,6 +3,9 @@
 export PATH="$HOME/opt/cross/bin:$PATH"
 
 rm -rf build
+rm -rf isodir
+
+mkdir isodir
 mkdir build
 
 echo "Compile asembler files"

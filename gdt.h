@@ -24,36 +24,35 @@
 #define FLAG_4KB_GRANULARITY 0x8
 
 //Structure describing segment
-typedef struct segment_t{
-    uint32_t base;
-    uint32_t limit;
-    uint8_t access;
-    uint8_t flags;
-} segment_t;
+// This structure contains the value of one GDT entry.
+// We use the attribute 'packed' to tell GCC not to change
+// any of the alignment in the structure.
+struct gdt_entry_struct
+{
+    uint16_t limit_low;           // The lower 16 bits of the limit.
+    uint16_t base_low;            // The lower 16 bits of the base.
+    uint8_t  base_middle;         // The next 8 bits of the base.
+    uint8_t  access;              // Access flags, determine what ring this segment can be used in.
+    uint8_t  granularity;         // low 4 bits are high 4 bits of limit
+    uint8_t  base_high;           // The last 8 bits of the base.
+} __attribute__((packed));
+typedef struct gdt_entry_struct gdt_entry_t;
 
+struct gdt_ptr_struct
+{
+    uint16_t limit;               // The upper 16 bits of all selector limits.
+    uint32_t base;                // The address of the first gdt_entry_t struct.
+}
+    __attribute__((packed));
+typedef struct gdt_ptr_struct gdt_ptr_t;
 
-//Structure describing gdt entry
-typedef struct gdt_entry_t{
-    uint16_t limit_low;
-    uint16_t base_low;
-    uint8_t base_middle;
-    uint8_t access;
-    uint8_t limit_high :4;
-    uint8_t flags :4;
-    uint8_t base_high;
-} gdt_entry_t;
+// Lets us access our ASM functions from our C code.
+//extern void load_gdt(uint32_t);
+extern void load_gdt(gdt_ptr_t * gdt_ptr);
 
-//Table of structures describing sectors
-segment_t segments[GDT_SIZE];
+// Internal function prototypes.
+static void gdt_set_gate(int32_t,uint32_t,uint32_t,uint8_t,uint8_t);
 
-//Global descriptors table
-gdt_entry_t GDT[GDT_SIZE];
-
-extern void setGdt(uint32_t gdt, uint16_t gdt_size);
-extern void reload_segments(void);
-
-void gdt_initialize(void);
-void encode_gdt_entry(gdt_entry_t* target, segment_t* source);
-void create_descriptor(uint32_t base, uint32_t limit, uint16_t flag);
+void init_gdt(void);
 
 #endif
