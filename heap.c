@@ -6,10 +6,10 @@
 
 //static helpers
 static BLOCK_HEADER_T *create_new_pages(uint32_t size);
-// static void free_empty_pages(BLOCK_HEADER_T *block);
-// static BLOCK_HEADER_T *memory_join(BLOCK_HEADER_T *block);
-// static BLOCK_HEADER_T *memory_split(BLOCK_HEADER_T *block, uint32_t size);
-// static BLOCK_HEADER_T *create_header_at(uint32_t address, BLOCK_HEADER_T *prev, BLOCK_HEADER_T *next, uint32_t size, int state);
+static void free_empty_pages(BLOCK_HEADER_T *block);
+static BLOCK_HEADER_T *memory_join(BLOCK_HEADER_T *block);
+static BLOCK_HEADER_T *block_split(BLOCK_HEADER_T *block, uint32_t size);
+static BLOCK_HEADER_T *create_header_at(uint32_t address, BLOCK_HEADER_T *prev, BLOCK_HEADER_T *next, uint32_t size, int state);
 // static void heap_command_heapinfo(const char* argv, uint32_t argc);
 
 struct m_list m_list;
@@ -47,11 +47,11 @@ void *kmalloc(uint32_t size){
     }
 
     //If block size is enough split it
-    // if(mptr->size - size - HEAP_SIZE > 0){
-    //     mptr = memory_split(mptr, size);
-    // }
+    if(mptr->size - size - HEAP_SIZE > 0){
+        mptr = block_split(mptr, size);
+    }
 
-    //Mark block as used and return address
+    // Mark block as used and return address
     mptr->state = USED;
 
     return mptr;
@@ -72,8 +72,8 @@ static BLOCK_HEADER_T *create_new_pages(uint32_t size){
     else
         m_list.tail->next_block = header;
 
-    m.tail = header;
-    m.size++;
+    m_list.tail = header;
+    m_list.size++;
 
     return header;
 }
