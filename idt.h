@@ -9,67 +9,63 @@
 
 #define IRQS_LENGTH 48
 
-struct IDT_entry{
+typedef struct idt_entry{
 	uint16_t offset_lowerbits;
 	uint16_t selector;
 	uint8_t zero;
 	uint8_t type_attr;
 	uint16_t offset_higherbits;
-};
+} idt_entry_t;
+
+typedef struct idt_ptr_struct
+{
+    uint16_t limit;
+    uint32_t base;
+} idt_ptr_t;
  
-struct IDT_entry IDT[256];
+idt_entry_t IDT[256];
 
-void idt_init(void);
-void set_IDT_entry(struct IDT_entry *entry, uint32_t address, uint16_t selector, uint8_t type);
+void init_idt();
 
-extern int load_idt();
-extern void irq0(void);  
-extern void irq1(void);  
-extern void irq2(void);  
-extern void irq3(void); 
-extern void irq4(void);  
-extern void irq5(void); 
-extern void irq6(void);  
-extern void irq7(void); 
-extern void irq8(void);  
-extern void irq9(void);  
-extern void irq10(void); 
-extern void irq11(void); 
-extern void irq12(void); 
-extern void irq13(void); 
-extern void irq14(void); 
-extern void irq15(void); 
-extern void irq16(void); 
-extern void irq17(void); 
-extern void irq18(void); 
-extern void irq19(void); 
-extern void irq20(void);
-extern void irq21(void); 
-extern void irq22(void); 
-extern void irq23(void); 
-extern void irq24(void); 
-extern void irq25(void); 
-extern void irq26(void); 
-extern void irq27(void); 
-extern void irq28(void);
-extern void irq29(void); 
-extern void irq30(void); 
-extern void irq31(void); 
-extern void irq32(void); 
-extern void irq33(void); 
-extern void irq34(void); 
-extern void irq35(void); 
-extern void irq36(void); 
-extern void irq37(void); 
-extern void irq38(void); 
-extern void irq39(void); 
-extern void irq40(void); 
-extern void irq41(void); 
-extern void irq42(void); 
-extern void irq43(void); 
-extern void irq44(void); 
-extern void irq45(void); 
-extern void irq46(void); 
-extern void irq47(void);
+//    0 - Division by zero exception
+//    1 - Debug exception
+//    2 - Non maskable interrupt
+//    3 - Breakpoint exception
+//    4 - 'Into detected overflow'
+//    5 - Out of bounds exception
+//    6 - Invalid opcode exception
+//    7 - No coprocessor exception
+//    8 - Double fault (pushes an error code)
+//    9 - Coprocessor segment overrun
+//    10 - Bad TSS (pushes an error code)
+//    11 - Segment not present (pushes an error code)
+//    12 - Stack fault (pushes an error code)
+//    13 - General protection fault (pushes an error code)
+//    14 - Page fault (pushes an error code)
+//    15 - Unknown interrupt exception
+//    16 - Coprocessor fault
+//    17 - Alignment check exception
+//    18 - Machine check exception
+//    19-31 - Reserved
+
+#define DIVISION_BY_ZERO            0
+#define DEBUG_EXCEPTION             1
+#define NON_MASKABLE_INTERRUPT      2
+#define BREAKPOINT_EXCEPTION        3
+#define INTO_DETECTED_OVERFLOW      4
+#define OUT_OF_BOUNDS_EXCEPTION     5
+#define INVALID_OPCODE_EXCEPTION    6
+#define NO_COPROCESSOR_EXCEPTION    7
+#define DOUBLE_FAULT                8
+#define COPROCESSOR_SEGMENT_OVERRUN 9
+#define BAD_TSS                     10
+#define SEGMENT_NOT_PRESENT         11
+#define STACK_FAULT                 12
+#define GENERAL_PROTECTION_FAULT    13
+#define PAGE_FAULT                  14
+#define UNKNOWN_INTERRUPT_EXCEPTION 15
+#define COPROCESSOR_FAULT           16
+#define ALIGNMENT_CHECK_EXCEPTION   17
+#define MACHINE_CHECK_EXCEPTION     18
 
 #endif
