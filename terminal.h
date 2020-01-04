@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define ESC (0x1B)
+#define BS  (0x08)
+#define EOT (0x04)
+
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 #define TERMINAL_BUFFER_ADDRESS 0xB8000

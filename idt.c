@@ -61,7 +61,7 @@ static void idt_set_gate(uint8_t,uint32_t,uint16_t,uint8_t);
 
 idt_ptr_t idt_ptr;
 
-void init_idt()
+void init_idt(void)
 {
     idt_ptr.limit = sizeof(idt_entry_t) * 256 -1;
     idt_ptr.base  = (uint32_t)&IDT;

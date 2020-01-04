@@ -25,7 +25,7 @@ typedef struct idt_ptr_struct
  
 idt_entry_t IDT[256];
 
-void init_idt();
+void init_idt(void);
 
 //    0 - Division by zero exception
 //    1 - Debug exception

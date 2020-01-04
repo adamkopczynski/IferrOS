@@ -8,6 +8,8 @@
 #include "../gdt.h"
 #include "../paging.h"
 #include "../heap.h"
+#include "../idt.h"
+#include "../pic.h"
 
 //Libc
 #include "../libc/stdio.h"
@@ -18,6 +20,10 @@ void kernel_main(void)
     terminal_initialize();
     multiboot_initialize();
     init_gdt();
+
+    PIC_remap(0x20, 0x28);
+    init_idt();
+
     paging_initialize();
     initialize_heap();
 
