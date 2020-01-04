@@ -1,154 +1,154 @@
-global irq0
-global irq1
-global irq2
-global irq3
-global irq4
-global irq5
-global irq6
-global irq7
-global irq8
-global irq9
-global irq10
-global irq11
-global irq12
-global irq13
-global irq14
-global irq15
- 
-global load_idt
- 
-global irq0_handler
-global irq1_handler
-global irq2_handler
-global irq3_handler
-global irq4_handler
-global irq5_handler
-global irq6_handler
-global irq7_handler
-global irq8_handler
-global irq9_handler
-global irq10_handler
-global irq11_handler
-global irq12_handler
-global irq13_handler
-global irq14_handler
-global irq15_handler
- 
-extern irq0_handler
-extern irq1_handler
-extern irq2_handler
-extern irq3_handler
-extern irq4_handler
-extern irq5_handler
-extern irq6_handler
-extern irq7_handler
-extern irq8_handler
-extern irq9_handler
-extern irq10_handler
-extern irq11_handler
-extern irq12_handler
-extern irq13_handler
-extern irq14_handler
-extern irq15_handler
- 
-irq0:
-  pusha
-  call irq0_handler
-  popa
-  iret
- 
-irq1:
-  pusha
-  call irq1_handler
-  popa
-  iret
- 
-irq2:
-  pusha
-  call irq2_handler
-  popa
-  iret
- 
-irq3:
-  pusha
-  call irq3_handler
-  popa
-  iret
- 
-irq4:
-  pusha
-  call irq4_handler
-  popa
-  iret
- 
-irq5:
-  pusha
-  call irq5_handler
-  popa
-  iret
- 
-irq6:
-  pusha
-  call irq6_handler
-  popa
-  iret
- 
-irq7:
-  pusha
-  call irq7_handler
-  popa
-  iret
- 
-irq8:
-  pusha
-  call irq8_handler
-  popa
-  iret
- 
-irq9:
-  pusha
-  call irq9_handler
-  popa
-  iret
- 
-irq10:
-  pusha
-  call irq10_handler
-  popa
-  iret
- 
-irq11:
-  pusha
-  call irq11_handler
-  popa
-  iret
- 
-irq12:
-  pusha
-  call irq12_handler
-  popa
-  iret
- 
-irq13:
-  pusha
-  call irq13_handler
-  popa
-  iret
- 
-irq14:
-  pusha
-  call irq14_handler
-  popa
-  iret
- 
-irq15:
-  pusha
-  call irq15_handler
-  popa
-  iret
- 
+.section .text
+.global load_idt
+
+.type load_idt, @function
+    # void load_idt(idt_ptr_t *)
 load_idt:
-	mov edx, [esp + 4]
-	lidt [edx]
-	sti
-	ret
+    movl	4(%esp),%eax
+    lidt	(%eax)
+    ret
+
+.size load_idt, . - load_idt
+
+# Macro for interrupt handler which does not push an error (we push a dummy val)
+.macro isr_noerr num
+.global isr\num
+isr\num:
+    cli
+    push	$0
+    push	$\num
+    jmp	isr_stub
+.endm
+
+# Macro for interrupt handler which pushes an error
+.macro isr_err num
+.global isr\num
+isr\num:
+    cli
+    push	$\num
+    jmp	isr_stub
+.endm
+
+isr_noerr 0
+isr_noerr 1
+isr_noerr 2
+isr_noerr 3
+isr_noerr 4
+isr_noerr 5
+isr_noerr 6
+isr_noerr 7
+isr_err 8
+isr_noerr 9
+isr_err 10
+isr_err 11
+isr_err 12
+isr_err 13
+isr_err 14
+isr_noerr 15
+isr_noerr 16
+isr_noerr 17
+isr_noerr 18
+isr_noerr 19
+isr_noerr 20
+isr_noerr 21
+isr_noerr 22
+isr_noerr 23
+isr_noerr 24
+isr_noerr 25
+isr_noerr 26
+isr_noerr 27
+isr_noerr 28
+isr_noerr 29
+isr_noerr 30
+isr_noerr 31
+
+
+.extern isr_handler
+isr_stub:
+    pusha
+
+    mov     %ds, %ax
+    pushl	%eax
+    movl	%eax, %esi
+
+    movw	$0x10, %ax
+    movw	%ax, %ds
+    movw	%ax, %es
+    movw	%ax, %fs
+    movw	%ax, %gs
+
+    call	isr_handler
+
+    pop	%eax
+    movl	%esi, %eax
+
+    mov	%ax, %ds
+    movw	%ax, %ds
+    movw	%ax, %es
+    movw	%ax, %fs
+    movw	%ax, %gs
+
+    popa
+    add	$8, %esp
+    sti
+    iret
+
+
+
+# Interrupt Request Handlers
+
+.macro irq num, map
+.global irq\num
+irq\num:
+    cli
+    push	$0
+    push	$\map
+    jmp	irq_stub
+.endm
+
+
+irq 0, 32
+irq 1, 33
+irq 2, 34
+irq 3, 35
+irq 4, 36
+irq 5, 37
+irq 6, 38
+irq 7, 39
+irq 8, 40
+irq 9, 41
+irq 10, 42
+irq 11, 43
+irq 12, 44
+irq 13, 45
+irq 14, 46
+irq 15, 47
+
+.extern irq_handler
+irq_stub:
+    pusha
+
+    mov	%ds, %ax
+    pushl	%eax
+    movl	%eax, %esi
+
+    movw	$0x10, %ax
+    movw	%ax, %ds
+    movw	%ax, %es
+    movw	%ax, %fs
+    movw	%ax, %gs
+
+    call	irq_handler
+
+    pop	%ebx
+    movl	%esi, %ebx
+
+    movw	%bx, %ds
+    movw	%bx, %es
+    movw	%bx, %fs
+    movw	%bx, %gs
+
+    popa
+    add $8, %esp
+    sti
+    iret
