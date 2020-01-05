@@ -3,6 +3,8 @@
 
 #include "stdint.h"
 
+#define MAX_HANDLERS_COUNT 16
+
 typedef struct registers
 {
     uint32_t ds;                             // Data segment selector
@@ -11,10 +13,14 @@ typedef struct registers
     uint32_t eip, cs, eflags, useresp, ss;   // Pushed by the processor automatically.
 } registers_t;
 
-// This intentionally accepts a *COPY* of the registers.
-// It's slower, but it prevents service routines from messing with them.
-// Maybe messing with them is useful, and we'll change this later.
-typedef void (*isr_handler_t)(registers_t);
+typedef void (*isr_handler_t)(void);
+
+typedef struct interrupt_handlers_s {
+    uint32_t count;
+	isr_handler_t funs[MAX_HANDLERS_COUNT];
+} interrupt_handlers_t;
+
+
 void register_interrupt_handler(uint8_t interrupt, isr_handler_t handler);
 
 #define IRQ0 32

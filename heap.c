@@ -83,7 +83,7 @@ void kfree(void *ptr){
     if(block != m_list.head && block->prev_block->state == FREE) joined = memory_join(block->prev_block);
     if(joined != NULL) block = joined;
 
-    return_free_pages(block);
+    free_empty_pages(block);
 }
 
 // Debug display block list

@@ -106,7 +106,6 @@ irq\num:
     jmp	irq_stub
 .endm
 
-
 irq 0, 32
 irq 1, 33
 irq 2, 34
