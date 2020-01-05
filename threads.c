@@ -30,7 +30,7 @@ static void scheduler(void);
 static void push_thread32(thread_t *t, uint32_t val);
 static void push_thread8(thread_t *t, uint8_t val);
 static void on_thread_close(void);
-static void find_next_thread(thread_t state);
+static void find_next_thread(thread_state_t state);
 static THREADS_NODE *find_node_with_id(THREADS_LIST *l, uint32_t id);
 static uint32_t find_thread_id(void);
 
@@ -143,7 +143,7 @@ void terminate_thread(uint32_t id){
     thread_t *current = get_current_thread();
 
     if(current->thread_id == id)
-        next_thread(THREAD_END);
+        find_next_thread(THREAD_END);
     else{
 
         THREADS_NODE *node = find_node_with_id(active_threads, id);
@@ -171,12 +171,12 @@ static void scheduler(void){
 
     if(active_threads->size > 1 && time_quants == 0){
 
-        next_thread(THREAD_READY);
+        find_next_thread(THREAD_READY);
     }
 }
 
 //Switch to next thread
-static void next_thread(thread_state_t state){
+static void find_next_thread(thread_state_t state){
 
     thread_t *current = get_current_thread();
     current->state = state;
@@ -208,7 +208,7 @@ static void next_thread(thread_state_t state){
 //Run when thread is terminating
 static void on_thread_close(void){
 
-    next_thread(THREAD_END);
+    find_next_thread(THREAD_END);
 }
 
 static uint32_t find_thread_id(void){
@@ -294,5 +294,5 @@ void debug_display_stack(uint32_t id){
 
 void yield(void){
 
-    next_thread(THREAD_READY);
+    find_next_thread(THREAD_READY);
 }
