@@ -11,6 +11,7 @@
 #include "../idt.h"
 #include "../pic.h"
 #include "../keyboard.h"
+#include "../threads.h"
 
 //Libc
 #include "../libc/stdio.h"
@@ -26,8 +27,9 @@ void kernel_main(void)
     init_idt();
 
     paging_initialize();
-    // initialize_heap();
+    init_heap();
     init_keyboard();
+    init_threads();
 
     printf("Kernel initialized!\nHello in IferrOS");
 }

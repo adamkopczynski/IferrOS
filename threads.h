@@ -38,7 +38,7 @@ UNI_LIST_H(threads, thread_t*)
 typedef struct list_threads_t THREADS_LIST;
 typedef struct node_threads_t THREADS_NODE;
 
-void threads_initialize(void);
+void init_threads(void);
 uint32_t create_kernel_thread(void);
 uint32_t create_thread(uint32_t task_addr);
 void destroy_thread(uint32_t id);
