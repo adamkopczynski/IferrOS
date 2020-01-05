@@ -13,6 +13,9 @@ typedef struct block_header_t{
     enum block_state state;
     struct block_header_t *next_block;
     struct block_header_t *prev_block;
+
+    const char *filename;
+    uint32_t line;
 } BLOCK_HEADER_T;
 
 struct m_list{
@@ -21,7 +24,7 @@ struct m_list{
     uint32_t size;
 };
 
-void initialize_heap(void);
+void init_heap(void);
 
 void *kmalloc(uint32_t size);
 void *krealloc(void *p, uint32_t size);
