@@ -10,6 +10,7 @@
 #include "../heap.h"
 #include "../idt.h"
 #include "../pic.h"
+#include "../keyboard.h"
 
 //Libc
 #include "../libc/stdio.h"
@@ -26,6 +27,7 @@ void kernel_main(void)
 
     paging_initialize();
     initialize_heap();
+    init_keyboard();
 
     printf("Kernel initialized!\nHello in IferrOS");
 }
