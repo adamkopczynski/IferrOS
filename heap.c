@@ -74,13 +74,13 @@ void kfree(void *ptr){
 
 
     BLOCK_HEADER_T *joined = NULL;
-    if(block != m_list.tail && block->next_block->state == FREE) joined = memory_join(block);
+    if(block != m_list.tail && block->next_block->state == FREE) joined = blocks_join(block);
 
     if(joined != NULL) block = joined;
 
     joined = NULL;
 
-    if(block != m_list.head && block->prev_block->state == FREE) joined = memory_join(block->prev_block);
+    if(block != m_list.head && block->prev_block->state == FREE) joined = blocks_join(block->prev_block);
     if(joined != NULL) block = joined;
 
     free_empty_pages(block);

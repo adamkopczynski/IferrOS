@@ -228,7 +228,7 @@ static void poll_keyboard_input() {
     }
 }
 
-void keyboard_handler(registers_t regs) {
+void keyboard_handler(void) {
     poll_keyboard_input();
 }
 
