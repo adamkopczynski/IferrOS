@@ -13,7 +13,7 @@ double  IRQ0_frequency = 0;
 
 void init_clock(void){
     set_frequency(FREQUENCY);
-    register_interrupt_handler(32, clock_interrupt_handler);
+    register_interrupt_handler(IRQ0, clock_interrupt_handler);
     // register_command("timesys", "Display time in ms since system start", clock_command_timesys);
 
     printf("Clock Ticking\n");
