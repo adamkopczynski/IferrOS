@@ -211,6 +211,7 @@ static void poll_keyboard_input() {
             kb_buff_hd = next_hd;
             return;
         }
+        codes = lower_ascii_codes_dvorak;
     }
     else if(shift) {
         codes = upper_ascii_codes_dvorak;
@@ -231,7 +232,7 @@ void keyboard_handler(registers_t regs) {
     poll_keyboard_input();
 }
 
-void initialize_keyboard() {
+void init_keyboard() {
     printf("Initializing keyboard.\n");
 
     outb(0x64, 0xFF);

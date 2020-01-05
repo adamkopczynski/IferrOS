@@ -26,7 +26,7 @@ void kernel_main(void)
     init_idt();
 
     paging_initialize();
-    initialize_heap();
+    // initialize_heap();
     init_keyboard();
 
     printf("Kernel initialized!\nHello in IferrOS");

@@ -52,4 +52,34 @@ _start:
 1:	hlt     				  			
 	jmp 1b							
  
+
+.global halt
+halt:
+    cli
+    hlt
+.Lhang:
+    jmp .Lhang
+
+.section .text
+.global pause
+.type pause @function
+pause:
+    hlt
+    ret
+
+.section .text
+.global sys_cli
+.type sys_cli @function
+sys_cli:
+    hlt
+    ret
+
+
+.section .text
+.global sys_sti
+.type sys_sti @function
+sys_sti:
+    hlt
+    ret
+    
 .size _start, . - _start		
