@@ -3,8 +3,8 @@
 #include "libc/stdio.h"
 
 // Kernel critical error
-void kernel_panic(const char *message)
-{
+void kernel_panic(const char *message){
+
     asm("cli");
 
     // Change color to red
@@ -27,8 +27,8 @@ void kernel_panic(const char *message)
 }
 
 // Report non critical error
-void report_error(const char *message)
-{
+void report_error(const char *message){
+    
     uint8_t last_color = terminal_getcolor();
 
     //Change color to red

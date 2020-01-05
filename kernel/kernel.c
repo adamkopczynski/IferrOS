@@ -32,4 +32,6 @@ void kernel_main(void)
     init_threads();
 
     printf("Kernel initialized!\nHello in IferrOS");
+
+    heap_stats();
 }

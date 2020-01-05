@@ -2,7 +2,7 @@
 #include <stddef.h>
 #include "heap.h"
 #include "paging.h"
-#include "sys.c"
+#include "sys.h"
 #include "libc/stdio.h"
 
 //static helpers
@@ -17,7 +17,7 @@ struct m_list m_list;
 
 void init_heap(void){
 
-    printf("Initialize heap");
+    printf("Initialize heap\n");
 
     //Init empty heap
     m_list.head = NULL;
@@ -87,13 +87,11 @@ void kfree(void *ptr){
 }
 
 // Debug display block list
-void debug_display_heap(void){
+void heap_stats(void){
 
     BLOCK_HEADER_T *current = m_list.head;
 
-    terminal_setcolor(VGA_COLOR_LIGHT_MAGENTA);
     printf("| BEGIN          | LEN            | TYPE           | FILE           | LINE\n");
-    terminal_setcolor(VGA_COLOR_WHITE);
     
     for(uint32_t i=0; i<m_list.size; i++){
 
