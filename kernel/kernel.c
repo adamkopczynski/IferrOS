@@ -12,6 +12,7 @@
 #include "../pic.h"
 #include "../keyboard.h"
 #include "../threads.h"
+#include "../shell.h"
 
 //Libc
 #include "../libc/stdio.h"

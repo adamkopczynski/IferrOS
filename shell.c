@@ -29,7 +29,7 @@ void init_shell(void){
     commands_list = list_commands_create();
     history_list = list_history_create();
 
-    register_command("help", "Display commands list", command_help);
+    // register_shell_command("help", "Display commands list", command_help);
 }
 
 void shell_main(void){
