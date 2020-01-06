@@ -12,6 +12,7 @@
 #include "../pic.h"
 #include "../keyboard.h"
 #include "../threads.h"
+#include "../ps2.h"
 #include "../shell.h"
 
 //Libc
@@ -29,6 +30,7 @@ void kernel_main(void)
 
     paging_initialize();
     init_heap();
+    init_ps2();
     init_keyboard();
     init_threads();
     init_shell();

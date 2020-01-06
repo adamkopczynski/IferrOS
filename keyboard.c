@@ -3,6 +3,9 @@
 #include "ports.h"
 #include "terminal.h"
 #include "libc/stdio.h"
+#include "ps2.h"
+#include "sys.h"
+#include "heap.h"
 #include <stdint.h>
 
 /*
@@ -85,247 +88,85 @@ const uint8_t upper_ascii_codes[256] = {
     0x00, 0x00, 0x00, 0x00      /* 0x58 */
 };
 
-
-const uint8_t lower_ascii_codes_dvorak[256] = {
-    0x00,  ESC,  '1',  '2',     /* 0x00 */
-     '3',  '4',  '5',  '6',     /* 0x04 */
-     '7',  '8',  '9',  '0',     /* 0x08 */
-     '[',  ']',   BS, '\t',     /* 0x0C */
-    '\'',  ',',  '.',  'p',     /* 0x10 */
-     'y',  'f',  'g',  'c',     /* 0x14 */
-     'r',  'l',  '/',  '=',     /* 0x18 */
-    '\n', 0x00,  'a',  'o',     /* 0x1C */
-     'e',  'u',  'i',  'd',     /* 0x20 */
-     'h',  't',  'n',  's',     /* 0x24 */
-     '-',  '`', 0x00, '\\',     /* 0x28 */
-     ';',  'q',  'j',  'k',     /* 0x2C */
-     'x',  'b',  'm',  'w',     /* 0x30 */
-     'v',  'z', 0x00,  '*',     /* 0x34 */
-    0x00,  ' ', 0x00, 0x00,     /* 0x38 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x3C */
-    0x00, 0x00, 0x00, 0x00,     /* 0x40 */
-    0x00, 0x00, 0x00,  '7',     /* 0x44 */
-     '8',  '9',  '[',  '4',     /* 0x48 */
-     '5',  '6',  '}',  '1',     /* 0x4C */
-     '2',  '3',  '0',  'v',     /* 0x50 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x54 */
-    0x00, 0x00, 0x00, 0x00      /* 0x58 */
-};
-
-// Scancode -> ASCII
-const uint8_t upper_ascii_codes_dvorak[256] = {
-    0x00,  ESC,  '!',  '@',     /* 0x00 */
-     '#',  '$',  '%',  '^',     /* 0x04 */
-     '&',  '*',  '(',  ')',     /* 0x08 */
-     '{',  '}',   BS, '\t',     /* 0x0C */
-     '"',  '<',  '>',  'P',     /* 0x10 */
-     'Y',  'F',  'G',  'C',     /* 0x14 */
-     'R',  'L',  '?',  '+',     /* 0x18 */
-    '\n', 0x00,  'A',  'O',     /* 0x1C */
-     'E',  'U',  'I',  'D',     /* 0x20 */
-     'H',  'T',  'N',  'S',     /* 0x24 */
-     '_',  '~', 0x00,  '|',     /* 0x28 */
-     ':',  'Q',  'J',  'K',     /* 0x2C */
-     'X',  'B',  'M',  'W',     /* 0x30 */
-     'V',  'Z', 0x00,  '*',     /* 0x34 */
-    0x00,  ' ', 0x00, 0x00,     /* 0x38 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x3C */
-    0x00, 0x00, 0x00, 0x00,     /* 0x40 */
-    0x00, 0x00, 0x00,  '7',     /* 0x44 */
-     '8',  '9',  '[',  '4',     /* 0x48 */
-    '5',  '6',  '}',  '1',     /* 0x4C */
-     '2',  '3',  '0',  'v',     /* 0x50 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x54 */
-    0x00, 0x00, 0x00, 0x00      /* 0x58 */
-};
-
-// shift flags. left shift is bit 0, right shift is bit 1.
-uint8_t shift;
-// control flags just like shift flags.
-uint8_t ctrl;
+// flags
+uint8_t shift = 0;
+uint8_t ctrl = 0;
+uint8_t capslock = 0;
+uint8_t numlock = 0;
+uint8_t scrolllock = 0;
 uint8_t keypresses[256];
 
+//Buffer
 #define BUFFLEN 128
-// New characters are added to hd. characters are pulled off of tl.
-uint8_t kb_buff[BUFFLEN];
-uint8_t kb_buff_hd;
-uint8_t kb_buff_tl;
 
-static void poll_keyboard_input() {
-    // See if there's room in the key buffer, else bug out.
-    uint8_t next_hd = (kb_buff_hd + 1) % BUFFLEN;
-    if(next_hd == kb_buff_tl) {
-        return;
-    }
+typedef struct kb_buff {
+    char buff[BUFFLEN];
+    uint8_t size;
+} kb_buff_t;
 
-    uint8_t byte = inb(0x60);
-    if(byte == 0) {
-        return;
-    }
+kb_buff_t kb_buff = {.size = 0};
 
-    if(byte & 0x80) {
-        // Key release
-        uint8_t pressedbyte = byte & 0x7F;
-        // Check if we're releasing a shift key.
-        if(pressedbyte == 0x2A) {
-            // left
-            shift = shift & 0x02;
-        }
-        else if(pressedbyte == 0x36) {
-            // right
-            shift = shift & 0x01;
-        }
-        else if(pressedbyte == 0x1D) {
-            ctrl = 0;
-        }
+static void buffer_push_char(const char c);
 
-        keypresses[pressedbyte] = 0;
-        return;
-    }
-
-    if(keypresses[byte] < 10 && keypresses[byte] > 0) {
-        // Key is already pressed. Ignore it.
-        keypresses[byte]++; // Increment anyway, so we can roll over and repeat.
-        return;
-    }
-    keypresses[byte]++;
-
-    if(byte == 0x2A) {
-        shift = shift | 0x01;
-        return;
-    }
-    else if(byte == 0x36) {
-        shift = shift | 0x02;
-        return;
-    }
-    else if(byte == 0x1D) {
-        ctrl = 1;
-        return;
-    }
-
-    const uint8_t *codes;
-    if(ctrl) {
-        if(lower_ascii_codes_dvorak[byte] == 'd') {
-            // Ctrl+d
-            kb_buff[kb_buff_hd] = EOT;
-            kb_buff_hd = next_hd;
-            return;
-        }
-        codes = lower_ascii_codes_dvorak;
-    }
-    else if(shift) {
-        codes = upper_ascii_codes_dvorak;
-    }
-    else {
-        codes = lower_ascii_codes_dvorak;
-    }
-
-    uint8_t ascii = codes[byte];
-    if(ascii != 0) {
-        kb_buff[kb_buff_hd] = ascii;
-        kb_buff_hd = next_hd;
-        return;
-    }
-}
-
-void keyboard_handler(void) {
-    poll_keyboard_input();
-}
+//Helpers
+static char scancode_to_ascii(unsigned char c, int shift);
+extern void sys_cli();
+extern void sys_sti();
+extern void pause();
 
 void init_keyboard() {
+
     printf("Initializing keyboard.\n");
 
-    outb(0x64, 0xFF);
-    uint8_t status = inb(0x64);
-    printf("Got status (%x) after reset.\n", status);
+    sys_cli();
+
+    ps2_write_command(COMMAND_DISABLE_FIRST_PORT);
+    ps2_write_command(COMMAND_DISABLE_SECOND_PORT);
+
+    uint8_t config_byte = ps2_get_config_byte();
+    config_byte |= CONFIG_FIRST_PORT_INTERRUPT;
+    ps2_set_config_byte(config_byte);
+
+    ps2_write_command(COMMAND_TEST_FIRST_PORT);
+    uint8_t test_result = ps2_read_data();
+    if(test_result ==  DEVICE_TEST_PASSED) printf("PS2 Keyboard Test Passed\n");
+    else report_error("PS2 Keyboard Test Failed");
+
+    ps2_write_command(COMMAND_ENABLE_FIRST_PORT);
+    ps2_write_command(COMMAND_ENABLE_SECOND_PORT);
     
-    status = inb(0x64);
-    if(status & (1 << 0)) {
-        printf("Output buffer full.\n");
-    }
-    else {
-        printf("Output buffer empty.\n");
-    }
-
-    if(status & (1 << 1)) {
-        printf("Input buffer full.\n");
-    }
-    else {
-        printf("Input buffer empty.\n");
-    }
-
-    if(status & (1 << 2)) {
-        printf("System flag set.\n");
-    }
-    else {
-        printf("System flag unset.\n");
-    }
-
-    if(status & (1 << 3)) {
-        printf("Command/Data -> PS/2 device.\n");
-    }
-    else {
-        printf("Command/Data -> PS/2 controller.\n");
-    }
-
-    if(status & (1 << 6)) {
-        printf("Timeout error.\n");
-    }
-    else {
-        printf("No timeout error.\n");
-    }
-
-    if(status & (1 << 7)) {
-        printf("Parity error.\n");
-    }
-    else {
-        printf("No parity error.\n");
-    }
-
-    // Test the controller.
-    outb(0x64, 0xAA);
-    uint8_t result = inb(0x60);
-    if(result == 0x55) {
-        printf("PS/2 controller test passed.\n");
-    }
-    else if(result == 0xFC) {
-        printf("PS/2 controller test failed.\n");
-//        return;
-    }
-    else {
-        printf("PS/2 controller responded to test with unknown code %x\n", result);
-        printf("Trying to continue.\n");
-//        return;
-    }
-
-    // Check the PS/2 controller configuration byte.
-    outb(0x64, 0x20);
-    result = inb(0x60);
-    printf("PS/2 config byte: %x\n", result);
+    sys_sti();
 
     register_interrupt_handler(IRQ1, keyboard_handler);
 
     printf("Keyboard ready to go!\n\n");
 }
 
-extern void pause();
-extern void sys_cli();
-extern void sys_sti();
+char *keyboard_get_buffer(void){
 
-// This can race with the keyboard_handler, so we have to stop interrupts while we check stuff.
-char get_ascii_char() {
+    return &(kb_buff.buff);
+}
 
-    while(1) {
-        sys_cli();
-        if(kb_buff_hd != kb_buff_tl) {
-            char c = kb_buff[kb_buff_tl];
-            kb_buff_tl = (kb_buff_tl + 1) % BUFFLEN;
-            poll_keyboard_input();
-            sys_sti();
-            return c;
-        }
-        sys_sti();
-        pause();
+void keyboard_handler(void){
+
+    unsigned char scancode = inb(PS2_DATA_PORT);
+
+    // Umieszczanie w buforze drukowalnych znaków
+    if(lower_ascii_codes[scancode]){
+
+        char c = scancode_to_ascii(scancode, shift | capslock);
+        buffer_push_char(c);
     }
 
+    if(scancode == VK_ENTER)
+        buffer_push_char('\n');
+
+    if(scancode == VK_BACKSPACE)
+        buffer_push_char('\b');
+
+}
+
+static void buffer_push_char(const char c){
+
+    kb_buff.buff[kb_buff.size++] = c;
 }
