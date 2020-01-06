@@ -77,3 +77,25 @@ void terminal_writestring(const char* data) {
 	terminal_write(data, strlen(data));
 
 }
+
+void terminal_clear(void){
+
+    terminal_row = 0;
+	terminal_column = 0;
+                                           
+	for (uint32_t y = 0; y < VGA_HEIGHT; y++) {
+		for (uint32_t x = 0; x < VGA_WIDTH; x++) {
+			uint32_t index = y * VGA_WIDTH + x;
+			terminal_buffer[index] = vga_entry(' ', terminal_color);
+		}
+	}
+
+}
+
+
+void terminal_workspace_clear(void){
+
+	for(uint32_t i=0; i<VGA_HEIGHT; i++)
+		terminal_putchar('\n');
+
+}

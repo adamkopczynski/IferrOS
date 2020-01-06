@@ -30,8 +30,13 @@ void kernel_main(void)
     init_heap();
     init_keyboard();
     init_threads();
+    init_shell();
 
     printf("Kernel initialized!\nHello in IferrOS");
 
     heap_stats();
+
+    terminal_clear();
+
+    shell_main();
 }
