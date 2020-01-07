@@ -14,6 +14,7 @@
 #include "../threads.h"
 #include "../ps2.h"
 #include "../shell.h"
+#include "../isr.h"
 
 //Libc
 #include "../libc/stdio.h"
@@ -25,19 +26,18 @@ void kernel_main(void)
     multiboot_initialize();
     init_gdt();
 
-    PIC_remap(0x20, 0x28);
     init_idt();
 
-    paging_initialize();
+    // paging_initialize();
     init_heap();
-    init_ps2();
+    // init_ps2();
     init_keyboard();
-    init_threads();
+    // init_threads();
     init_shell();
 
     printf("Kernel initialized!\nHello in IferrOS");
 
-    heap_stats();
+    // heap_stats();
 
     terminal_clear();
 

@@ -19,6 +19,8 @@ void register_interrupt_handler(uint8_t interrupt, isr_handler_t handler){
 
 void isr_handler(registers_t regs){
 
+    printf("isr handled\n");
+
     if(regs.int_no == GENERAL_PROTECTION_FAULT){
 
         printf("General Protection Fault. Code: %d", regs.err_code);
@@ -34,21 +36,20 @@ void isr_handler(registers_t regs){
 }
 
 
-void irq_handler(registers_t regs){
+void irq_handler(uint32_t irq){
 
     //If int_no >= 40, we must reset the slave as well as the master
-    if(regs.int_no >= 40){
+    if(irq >= 40){
         //reset slave
-        outb(PIC1_CMD, PIC_EOI);
+        PIC_sendEOI(irq);
     }
 
-    outb(PIC2_CMD, PIC_EOI);
+    int count = interrupt_handlers[irq].count || 0;
 
-    int count = interrupt_handlers[regs.int_no].count || 0;
-    if(count){
-        
-        for(int i = 0; i < count; i++){
-            interrupt_handlers[regs.int_no].funs[i]();
-        }
+    for(int i = 0; i < count; i++){
+        isr_handler_t handler = interrupt_handlers[irq].funs[i];
+        handler();
     }
+
+    PIC_sendEOI(irq);
 }

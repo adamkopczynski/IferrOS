@@ -12,6 +12,8 @@ extern void sys_sti();
 
 void init_ps2(void){
 
+    printf("Initialize PS2\n");
+
     if(!ps2_check_controller_work()) kernel_panic("Problem With PS2 Controller");
     else printf("PS2 Controller Ready\n");
 }

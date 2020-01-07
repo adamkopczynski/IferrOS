@@ -110,6 +110,7 @@ static void buffer_push_char(const char c);
 
 //Helpers
 static char scancode_to_ascii(unsigned char c, int shift);
+void keyboard_handler(void);
 extern void sys_cli();
 extern void sys_sti();
 extern void pause();
@@ -118,24 +119,73 @@ void init_keyboard() {
 
     printf("Initializing keyboard.\n");
 
-    sys_cli();
-
-    ps2_write_command(COMMAND_DISABLE_FIRST_PORT);
-    ps2_write_command(COMMAND_DISABLE_SECOND_PORT);
-
-    uint8_t config_byte = ps2_get_config_byte();
-    config_byte |= CONFIG_FIRST_PORT_INTERRUPT;
-    ps2_set_config_byte(config_byte);
-
-    ps2_write_command(COMMAND_TEST_FIRST_PORT);
-    uint8_t test_result = ps2_read_data();
-    if(test_result ==  DEVICE_TEST_PASSED) printf("PS2 Keyboard Test Passed\n");
-    else report_error("PS2 Keyboard Test Failed");
-
-    ps2_write_command(COMMAND_ENABLE_FIRST_PORT);
-    ps2_write_command(COMMAND_ENABLE_SECOND_PORT);
+    outb(0x64, 0xFF);
+    uint8_t status = inb(0x64);
+    printf("Got status (%x) after reset.\n", status);
     
-    sys_sti();
+    status = inb(0x64);
+    if(status & (1 << 0)) {
+        printf("Output buffer full.\n");
+    }
+    else {
+        printf("Output buffer empty.\n");
+    }
+
+    if(status & (1 << 1)) {
+        printf("Input buffer full.\n");
+    }
+    else {
+        printf("Input buffer empty.\n");
+    }
+
+    if(status & (1 << 2)) {
+        printf("System flag set.\n");
+    }
+    else {
+        printf("System flag unset.\n");
+    }
+
+    if(status & (1 << 3)) {
+        printf("Command/Data -> PS/2 device.\n");
+    }
+    else {
+        printf("Command/Data -> PS/2 controller.\n");
+    }
+
+    if(status & (1 << 6)) {
+        printf("Timeout error.\n");
+    }
+    else {
+        printf("No timeout error.\n");
+    }
+
+    if(status & (1 << 7)) {
+        printf("Parity error.\n");
+    }
+    else {
+        printf("No parity error.\n");
+    }
+
+    // Test the controller.
+    outb(0x64, 0xAA);
+    uint8_t result = inb(0x60);
+    if(result == 0x55) {
+        printf("PS/2 controller test passed.\n");
+    }
+    else if(result == 0xFC) {
+        printf("PS/2 controller test failed.\n");
+//        return;
+    }
+    else {
+        printf("PS/2 controller responded to test with unknown code %x\n", result);
+        printf("Trying to continue.\n");
+//        return;
+    }
+
+    // Check the PS/2 controller configuration byte.
+    outb(0x64, 0x20);
+    result = inb(0x60);
+    printf("PS/2 config byte: %x\n", result);
 
     register_interrupt_handler(IRQ1, keyboard_handler);
 
@@ -144,7 +194,7 @@ void init_keyboard() {
 
 char *keyboard_get_buffer(void){
 
-    return &(kb_buff.buff);
+    return kb_buff.buff;
 }
 
 void keyboard_handler(void){
@@ -156,6 +206,7 @@ void keyboard_handler(void){
 
         char c = scancode_to_ascii(scancode, shift | capslock);
         buffer_push_char(c);
+        printf("%c", c);
     }
 
     if(scancode == VK_ENTER)
@@ -164,6 +215,11 @@ void keyboard_handler(void){
     if(scancode == VK_BACKSPACE)
         buffer_push_char('\b');
 
+}
+
+static char scancode_to_ascii(unsigned char c, int shift){
+
+    return lower_ascii_codes[c];
 }
 
 static void buffer_push_char(const char c){

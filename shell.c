@@ -35,8 +35,14 @@ void init_shell(void){
 void shell_main(void){
 
     printf("IferrOS user$ ");
-    char *kb_buff = keyboard_get_buffer();
-    printf("Buff: %s", kb_buff);
+    
+    // while(1){
+    //     char *kb_buff = keyboard_get_buffer();
+
+    //     if(c){
+    //         putchar(c);
+    //     }
+    // }
     
 }
 

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "terminal.h"
 #include "libc/string.h"
+#include "libc/stdlib.h"
 
 //Terminal static methods
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg);
@@ -97,5 +98,22 @@ void terminal_workspace_clear(void){
 
 	for(uint32_t i=0; i<VGA_HEIGHT; i++)
 		terminal_putchar('\n');
+
+}
+
+void terminal_write_dec(uint32_t d){
+
+    char buff[13];
+    char *x = itoa(d, buff, 13);
+    terminal_writestring(x);
+}
+
+void terminal_write_hex(uint32_t d){
+
+    terminal_writestring("0x");
+    for(int i = 28; i >= 0; i-=4)
+    {
+        terminal_putchar(hex_char(d>>i));
+    }
 
 }

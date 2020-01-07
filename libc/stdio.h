@@ -3,7 +3,7 @@
 
 #define EOF (-1)
 
-int printf(const char* format, ...);
+int printf(char *fmt, ...);
 int puts(const char* string);
 int putchar(char c);
 // int scanf(const char* format, ...);
