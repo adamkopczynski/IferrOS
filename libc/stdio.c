@@ -3,6 +3,8 @@
 #include <stdarg.h>
 #include "stdio.h"
 #include "../terminal.h"
+#include "../buffer.h"
+#include "../keyboard.h"
 #include "string.h"
 
 int putchar(char c) {
@@ -68,6 +70,30 @@ int printf(char *fmt, ...) {
     return 0;
 }
 
-int gets(void){
-	
+int gets(char* text){
+
+	buffer_t* kbuff = keyboard_get_buffer();
+	int len = 0;
+
+	while(1){
+
+		if(!circular_buffer_empty(kbuff)){
+			char c = circular_buffer_pop_back(kbuff, NULL);
+
+			if(c == '\n'){
+				putchar('\n');
+				*(text+len++) = '\0';
+				return len;
+			}
+			else if(c == '\b' && len > 0){
+				//TODO remove last displayed character
+				len--;
+			}
+			else{
+				putchar(c);
+				*(text+len++) = c;
+			}
+
+		}
+	}
 }
