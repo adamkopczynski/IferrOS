@@ -13,8 +13,6 @@ UNI_LIST_C(commands, command_entry_t)
 UNI_LIST_C(history, char*)
 
 //Static helpers
-// static void report_fail(void);
-// static uint32_t tokenize_command(char *command);
 void command_help(const char* argv, uint32_t argc);
 
 // static void add_text_to_history(char *text);
@@ -52,8 +50,8 @@ void command_help(const char* argv, uint32_t argc){
 
     struct node_commands_t *current = commands_list->head;
 
-    while(current!=NULL)
-    {
+    while(current!=NULL){
+
         command_entry_t command_entry = current->data;
 
         uint32_t len = printf("| %s", command_entry.command);
@@ -63,4 +61,15 @@ void command_help(const char* argv, uint32_t argc){
 
         current = current->next;
     }
+}
+
+void register_shell_command(char *command, char *description, command_function_t fun){
+
+    command_entry_t command_entry;
+
+    command_entry.command = command;
+    command_entry.description = description;
+    command_entry.fun = fun;
+
+    list_commands_push_back(commands_list, command_entry);
 }

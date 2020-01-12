@@ -67,3 +67,7 @@ int printf(char *fmt, ...) {
     }
     return 0;
 }
+
+int gets(void){
+	
+}

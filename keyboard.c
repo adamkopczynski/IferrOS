@@ -2,6 +2,7 @@
 #include "isr.h"
 #include "ports.h"
 #include "terminal.h"
+#include "buffer.h"
 #include "libc/stdio.h"
 #include "ps2.h"
 #include "sys.h"
@@ -97,16 +98,9 @@ uint8_t scrolllock = 0;
 uint8_t keypresses[256];
 
 //Buffer
-#define BUFFLEN 128
+#define BUFFLEN 256
 
-typedef struct kb_buff {
-    char buff[BUFFLEN];
-    uint8_t size;
-} kb_buff_t;
-
-kb_buff_t kb_buff = {.size = 0};
-
-static void buffer_push_char(const char c);
+buffer_t *kbuff;
 
 //Helpers
 static char scancode_to_ascii(unsigned char c, int shift);
@@ -189,12 +183,19 @@ void init_keyboard() {
 
     register_interrupt_handler(IRQ1, keyboard_handler);
 
+    printf("Initialize keyboard buffer\n");
+    
+    if(!circular_buffer_create(kbuff, 256))
+        printf("Keayboard buffer ready\n");
+    else
+        report_error("Keboard buffer init failed!");
+
     printf("Keyboard ready to go!\n\n");
 }
 
-char *keyboard_get_buffer(void){
+buffer_t* keyboard_get_buffer(void){
 
-    return kb_buff.buff;
+    return kbuff;
 }
 
 void keyboard_handler(void){
@@ -205,24 +206,19 @@ void keyboard_handler(void){
     if(lower_ascii_codes[scancode]){
 
         char c = scancode_to_ascii(scancode, shift | capslock);
-        buffer_push_char(c);
+        circular_buffer_push_back(kbuff, c);
         printf("%c", c);
     }
 
     if(scancode == VK_ENTER)
-        buffer_push_char('\n');
+        circular_buffer_push_back(kbuff, '\n');
 
     if(scancode == VK_BACKSPACE)
-        buffer_push_char('\b');
+        circular_buffer_push_back(kbuff, '\b');
 
 }
 
 static char scancode_to_ascii(unsigned char c, int shift){
 
     return lower_ascii_codes[c];
-}
-
-static void buffer_push_char(const char c){
-
-    kb_buff.buff[kb_buff.size++] = c;
 }
