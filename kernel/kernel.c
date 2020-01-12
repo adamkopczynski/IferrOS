@@ -24,22 +24,21 @@ void kernel_main(void)
     /* Initialize terminal interface */
     terminal_initialize();
     multiboot_initialize();
-    init_gdt();
-
-    init_idt();
-
-    // paging_initialize();
+    paging_initialize();
     init_heap();
+    init_shell();
+
     // init_ps2();
+    init_gdt();
+    init_idt();
     init_keyboard();
     // init_threads();
-    init_shell();
+    
 
     printf("Kernel initialized!\nHello in IferrOS");
 
-    // heap_stats();
-
     terminal_clear();
 
+    heap_stats();
     shell_main();
 }

@@ -82,4 +82,4 @@ sys_sti:
     hlt
     ret
     
-.size _start, . - _start		
+.size _start, . - _start

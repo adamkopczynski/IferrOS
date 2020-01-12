@@ -1,6 +1,7 @@
-#ifndef __PAGING_H__
-#define __PAGING_H__
+#ifndef __MEMORY_MAP_H__
+#define __MEMORY_MAP_H__
 
+#include <stddef.h>
 #include <stdint.h>
 
 #define PAGE_SIZE 0x1000
@@ -15,10 +16,12 @@
 
 #define HEAP_START 0x400000
 
+
 void paging_initialize(void);
 void page_set(uint32_t addr, uint32_t state);
 void page_set_range(uint32_t addr_start, uint32_t len, uint32_t state);
 uint32_t page_get(uint32_t addr);
 uint32_t page_claim(uint32_t count);
+void pages_stats(void);
 
 #endif
