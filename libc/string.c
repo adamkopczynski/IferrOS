@@ -48,3 +48,15 @@ void* memset(void* bufptr, int value, size_t size) {
 		buf[i] = (unsigned char) value;
 	return bufptr;
 }
+
+int strcmp(const char* str, const char* str2){
+
+	int i = 0;
+	while(str[i] != '\0'){
+		if(str[i] != str2[i])
+			return 1;
+		i++;
+	}
+
+	return 0;
+}

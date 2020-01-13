@@ -100,7 +100,7 @@ uint8_t keypresses[256];
 //Buffer
 #define BUFFLEN 256
 
-buffer_t *kbuff;
+buffer_t kbuff;
 
 //Helpers
 static char scancode_to_ascii(unsigned char c, int shift);
@@ -182,20 +182,16 @@ void init_keyboard() {
     printf("PS/2 config byte: %x\n", result);
 
     register_interrupt_handler(IRQ1, keyboard_handler);
+    circular_buffer_create(&kbuff, 0);
 
     printf("Initialize keyboard buffer\n");
-    
-    if(!circular_buffer_create(kbuff, 256))
-        printf("Keayboard buffer ready\n");
-    else
-        report_error("Keboard buffer init failed!");
 
     printf("Keyboard ready to go!\n\n");
 }
 
 buffer_t* keyboard_get_buffer(void){
 
-    return kbuff;
+    return &kbuff;
 }
 
 void keyboard_handler(void){
@@ -206,15 +202,8 @@ void keyboard_handler(void){
     if(lower_ascii_codes[scancode]){
 
         char c = scancode_to_ascii(scancode, shift | capslock);
-        circular_buffer_push_back(kbuff, c);
-        printf("%c", c);
+        circular_buffer_push_back(&kbuff, c);
     }
-
-    if(scancode == VK_ENTER)
-        circular_buffer_push_back(kbuff, '\n');
-
-    if(scancode == VK_BACKSPACE)
-        circular_buffer_push_back(kbuff, '\b');
 
 }
 

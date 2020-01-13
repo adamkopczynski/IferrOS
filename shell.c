@@ -8,6 +8,7 @@
 #include "heap.h"
 #include "libc/stdio.h"
 #include "libc/string.h"
+#include "buffer.h"
 
 UNI_LIST_C(commands, command_entry_t)
 UNI_LIST_C(history, char*)
@@ -37,7 +38,7 @@ void shell_main(void){
         printf("IferrOS user$ ");
         gets(command, MAX_COMMAND_LENGTH+1);
 
-        if(!run_program(command)) printf("\n");
+        if(run_program(command)) printf("\n");
         else printf("%s: command not found\n");
     }
     

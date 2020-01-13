@@ -4,7 +4,7 @@
 #include "libc/stdio.h"
 #include "buffer.h"
 
-uint8_t circular_buffer_empty(const struct circular_buffer_t *b){
+int circular_buffer_empty(const struct circular_buffer_t *b){
 
     if(!b || !b->ptr || b->begin < 0 ||
     b->end < 0 || b->capacity <= 0 || b->begin >= b->capacity || b->end >= b->capacity
@@ -15,7 +15,7 @@ uint8_t circular_buffer_empty(const struct circular_buffer_t *b){
     return 0;
 }
 
-uint8_t circular_buffer_full(const struct circular_buffer_t *b){
+int circular_buffer_full(const struct circular_buffer_t *b){
 
   if(!b || !b->ptr || b->begin < 0 ||
     b->end < 0 || b->capacity <= 0 || b->begin >= b->capacity || b->end >= b->capacity) return -1;
@@ -23,17 +23,11 @@ uint8_t circular_buffer_full(const struct circular_buffer_t *b){
     return b->full;
 }
 
-int circular_buffer_create(struct circular_buffer_t *b, uint32_t size){
-
-  if(!b || size < 1) return 1;
-
-  b->ptr = (char*)malloc(sizeof(char)*size);
-
-  if(!b->ptr) return 2;
+int circular_buffer_create(struct circular_buffer_t *b, int size){
 
   b->end = 0;
   b->begin = 0;
-  b->capacity = size;
+  b->capacity = BUFFER_SIZE;
   b->full = 0;
 
   return 0;
@@ -42,11 +36,11 @@ int circular_buffer_create(struct circular_buffer_t *b, uint32_t size){
 void circular_buffer_destroy(struct circular_buffer_t *b){
   
   if(b){
-    free(b->ptr);
+    kfree(b->ptr);
   }
 }
 
-uint8_t circular_buffer_push_back(struct circular_buffer_t *cb, char value){
+int circular_buffer_push_back(struct circular_buffer_t *cb, char value){
 
   if(!cb || !cb->ptr || cb->begin < 0 ||
     cb->end < 0 || cb->capacity <= 0 || cb->begin >= cb->capacity || cb->end >= cb->capacity
@@ -66,19 +60,19 @@ uint8_t circular_buffer_push_back(struct circular_buffer_t *cb, char value){
   return 0;
 }
 
-char circular_buffer_pop_front(struct circular_buffer_t *a, uint8_t *err_code){
+char circular_buffer_pop_front(struct circular_buffer_t *a, int *err_code){
 
   char poped_value;
 
   if(!a || !a->ptr || a->begin < 0 ||
     a->end < 0 || a->capacity <= 0 || a->begin >= a->capacity || a->end >= a->capacity) {
     if(err_code) *err_code = 1;
-    return;
+    return 0;
   }
 
   if(circular_buffer_empty(a)){
     if(err_code) *err_code = 2;
-    return;
+    return 0;
   }
   else{
     poped_value = *(a->ptr+(a->begin));
@@ -92,7 +86,7 @@ char circular_buffer_pop_front(struct circular_buffer_t *a, uint8_t *err_code){
   return poped_value;
 }
 
-char circular_buffer_pop_back(struct circular_buffer_t *a, uint8_t *err_code){
+char circular_buffer_pop_back(struct circular_buffer_t *a, int *err_code){
 
   char poped_value;
 

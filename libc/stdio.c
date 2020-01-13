@@ -70,7 +70,7 @@ int printf(char *fmt, ...) {
     return 0;
 }
 
-int gets(char* text){
+int gets(char* text, int size){
 
 	buffer_t* kbuff = keyboard_get_buffer();
 	int len = 0;
@@ -78,6 +78,7 @@ int gets(char* text){
 	while(1){
 
 		if(!circular_buffer_empty(kbuff)){
+   
 			char c = circular_buffer_pop_back(kbuff, NULL);
 
 			if(c == '\n'){
