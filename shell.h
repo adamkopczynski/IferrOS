@@ -5,7 +5,7 @@
 #include "terminal.h"
 #include "list.h"
 
-#define SHELL_MAX_COMMAND_LENGTH 200
+#define MAX_COMMAND_LENGTH 250
 
 typedef void (*command_function_t)(const char* argv, uint32_t argc);
 
@@ -20,7 +20,7 @@ UNI_LIST_H(history, char*)
 
 void init_shell(void);
 void shell_main(void);
-int execute(char *command);
+int run_program(char *command);
 void register_shell_command(char *command, char *description, command_function_t fun);
 
 void shell_start_insert(void);

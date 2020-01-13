@@ -14,7 +14,6 @@ UNI_LIST_C(history, char*)
 
 //Static helpers
 void command_help(const char* argv, uint32_t argc);
-
 // static void add_text_to_history(char *text);
 // static void shell_prev_command(void);
 // static void shell_next_command(void);
@@ -32,15 +31,15 @@ void init_shell(void){
 
 void shell_main(void){
 
-    printf("IferrOS user$ ");
+    char command[MAX_COMMAND_LENGTH];
     
-    // while(1){
-    //     char *kb_buff = keyboard_get_buffer();
+    while(1){
+        printf("IferrOS user$ ");
+        gets(command, MAX_COMMAND_LENGTH+1);
 
-    //     if(c){
-    //         putchar(c);
-    //     }
-    // }
+        if(!run_program(command)) printf("\n");
+        else printf("%s: command not found\n");
+    }
     
 }
 
@@ -72,4 +71,26 @@ void register_shell_command(char *command, char *description, command_function_t
     command_entry.fun = fun;
 
     list_commands_push_back(commands_list, command_entry);
+}
+
+int run_program(char *command){
+
+    struct node_commands_t *current = commands_list->head;
+
+    while(current!=NULL){
+
+        command_entry_t command_entry = current->data;
+
+        if(strcmp(command_entry.command, command) == 0){
+
+            command_function_t fun = command_entry.fun;
+            fun(command, 0);
+
+            return 1;
+        }
+        
+        current = current->next;
+    }
+
+    return 0;
 }
