@@ -27,7 +27,7 @@ void init_shell(void){
     commands_list = list_commands_create();
     history_list = list_history_create();
 
-    // register_shell_command("help", "Display commands list", command_help);
+    register_shell_command("help", "Display commands list", command_help);
 }
 
 void shell_main(void){
@@ -38,8 +38,8 @@ void shell_main(void){
         printf("IferrOS user$ ");
         gets(command, MAX_COMMAND_LENGTH+1);
 
-        if(run_program(command)) printf("\n");
-        else printf("%s: command not found\n");
+        if(!run_program(command))
+            printf("%s: command not found\n", command);
     }
     
 }

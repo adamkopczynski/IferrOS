@@ -1,10 +1,11 @@
 #include <stdint.h>
 #include "clock.h"
 #include "isr.h"
+#include "shell.h"
 #include "libc/stdio.h"
 
 static void set_frequency(unsigned int frequency);
-static void clock_info(const char* tokens, uint32_t tokens_count);
+static void clock_command_timesys(const char* argv, uint32_t argc);
 
 volatile unsigned long long ticks = 0;
 volatile double system_time_ms = 0;
@@ -14,9 +15,7 @@ double  IRQ0_frequency = 0;
 void init_clock(void){
     set_frequency(FREQUENCY);
     register_interrupt_handler(IRQ0, clock_interrupt_handler);
-    // register_command("timesys", "Display time in ms since system start", clock_command_timesys);
-
-    printf("Clock Ticking\n");
+    register_shell_command("systime", "System clock ticks", clock_command_timesys);
 }
 
 static void set_frequency(unsigned int frequency){
@@ -51,10 +50,10 @@ void clock_interrupt_handler(void){
     ticks += 1;
 }
 
-// static void clock_command_timesys(const char* tokens, uint32_t tokens_count){
+static void clock_command_timesys(const char* tokens, uint32_t tokens_count){
 
-//     terminal_setcolor(VGA_COLOR_WHITE);
-//     printf("Time in ms since start: ");
-//     terminal_setcolor(VGA_COLOR_LIGHT_MAGENTA);
-//     printf("%ull\n", ticks);
-// }
+    terminal_setcolor(VGA_COLOR_WHITE);
+    printf("Time in ms since start: ");
+    terminal_setcolor(VGA_COLOR_LIGHT_MAGENTA);
+    printf("%d\n", ticks);
+}

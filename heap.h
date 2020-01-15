@@ -41,6 +41,6 @@ void *__kcalloc(uint32_t size, const char *filename, uint32_t line);
 void *__krealloc(void *old_ptr, uint32_t new_size, const char *filename, uint32_t line);
 
 void kfree(void *ptr);
-void heap_stats(void);
+void register_heap_stats(void);
 
 #endif

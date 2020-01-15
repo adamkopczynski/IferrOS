@@ -43,6 +43,7 @@ void init_threads(void){
     // Kernel thread
     create_kernel_thread();
     register_interrupt_handler(IRQ0, scheduler);
+    
 }
 
 uint32_t create_thread(uint32_t task_addr){
@@ -173,6 +174,8 @@ static void scheduler(void){
 
         find_next_thread(THREAD_READY);
     }
+
+    sys_sti();
 }
 
 //Switch to next thread

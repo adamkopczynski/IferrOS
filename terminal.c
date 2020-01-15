@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "terminal.h"
+#include "shell.h"
 #include "libc/string.h"
 #include "libc/stdlib.h"
 
@@ -116,4 +117,12 @@ void terminal_write_hex(uint32_t d){
         terminal_putchar(hex_char(d>>i));
     }
 
+}
+
+void command_clear(const char* argv, uint32_t argc){
+	terminal_clear();
+}
+
+void register_terminal_commands(void){
+	register_shell_command("clear", "Clear terminal", command_clear);
 }

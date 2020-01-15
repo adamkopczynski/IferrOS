@@ -15,6 +15,7 @@
 #include "../ps2.h"
 #include "../shell.h"
 #include "../isr.h"
+#include "../clock.h"
 
 //Libc
 #include "../libc/stdio.h"
@@ -32,13 +33,15 @@ void kernel_main(void)
     init_gdt();
     init_idt();
     init_keyboard();
-    // init_threads();
+    init_clock();
+    init_threads();
     
+    //Registers commands for shell
+    register_heap_stats();
+    register_terminal_commands();
 
     printf("Kernel initialized!\nHello in IferrOS");
 
     terminal_clear();
-
-    heap_stats();
     shell_main();
 }

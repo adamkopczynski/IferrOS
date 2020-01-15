@@ -13,6 +13,7 @@ static void free_pages(memory_block_t *block);
 static memory_block_t *memory_merge(memory_block_t *block);
 static memory_block_t *memory_split(memory_block_t *block, uint32_t size);
 static memory_block_t *create_block_at(uint32_t address, memory_block_t *prev, memory_block_t *next, uint32_t size, int state);
+void heap_stats(const char* argv, uint32_t argc);
 
 memory_list_t mlist;
 
@@ -22,6 +23,10 @@ void init_heap(void){
     mlist.head = NULL;
     mlist.tail = NULL;
     mlist.size = 0;
+}
+
+void register_heap_stats(void){
+    register_shell_command("memory", "Display heap statistics", heap_stats);
 }
 
 void *__kmalloc(uint32_t size, const char *filename, uint32_t line){
@@ -131,7 +136,7 @@ void kfree(void *ptr){
     free_pages(block);
 }
 
-void heap_stats(void){
+void heap_stats(const char* argv, uint32_t argc){
 
     memory_block_t *current = mlist.head;
 

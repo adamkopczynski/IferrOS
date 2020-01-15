@@ -42,5 +42,6 @@ void terminal_clear(void);
 void terminal_workspace_clear(void);
 void terminal_write_dec(uint32_t d);
 void terminal_write_hex(uint32_t d);
+void register_terminal_commands(void);
 
 #endif
