@@ -18,9 +18,9 @@ void register_fat_shell_api(void){
 void touch_command(const char* argv, uint32_t argc){
     //filename?? get word from agrv!!
 
-    write_file(fs, dir, (uint8_t *)"", "test.txt", 0);
+    write_file(fs, &dir, (uint8_t *)"", "test.txt", 0);
 }
 
 void ls_command(const char* argv, uint32_t argc){
-    list_directory(fs, dir);
+    list_directory(fs, &dir);
 }
