@@ -1,5 +1,5 @@
-#ifndef __STRING_H__
-#define __STRING_H__
+#ifndef __STDIO_H__
+#define __STDIO_H__
 
 #define EOF (-1)
 

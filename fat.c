@@ -25,16 +25,17 @@ static uint16_t read_uint16(uint8_t *buff, size_t offset);
 static uint32_t read_uint32(uint8_t *buff, size_t offset);
 
 //Global fs=ile system structure
-fat32 *fs;
+fat32 *fs = NULL;
 
-void init_fs(void){
+fat32* init_fs(void){
 
     printf("Creating file system (FAT32)\n");
 
     fs = (fat32*)kmalloc(sizeof(fat32));
 
     if(!identify()) {
-        kernel_panic("Unable to initialize file system.");
+        // report_error("Unable to initialize file system.");
+        return NULL;
     }
 
     printf("Filesystem identified!\n");
@@ -69,6 +70,8 @@ void init_fs(void){
         }
     }
 
+    printf("FS created. \n");
+    return fs;
 }
 
 void destroy_fs(void){
@@ -117,7 +120,7 @@ void free_directory(fat32 *fs, struct directory *dir){
 //Copy file data from disk to memory
 uint8_t *read_file(fat32 *fs, struct dir_entry *dirent){
 
-    uint8_t *file = (uint8_t)kmalloc(dirent->size);
+    uint8_t *file = (uint8_t*)kmalloc(dirent->size);
     uint8_t *current_file_ptr = file;
 
     uint32_t cluster = dirent->first_cluster;
@@ -126,7 +129,7 @@ uint8_t *read_file(fat32 *fs, struct dir_entry *dirent){
     while(1){
 
         uint8_t copy_bytes[fs->cluster_size];
-        getCluster(fs, copy_bytes, cluster);
+        get_cluster(fs, copy_bytes, cluster);
 
         uint32_t remaining = dirent->size - copiedbytes;
         uint32_t to_copy = remaining > fs->cluster_size ? fs->cluster_size : remaining;
@@ -153,7 +156,7 @@ static void write_file_fun(fat32 *fs, struct directory *dir, uint8_t *file, char
     uint32_t required_entries_long_fname = 1; //For now accept only short name. UPDATE if long name added;
     uint32_t required_entries_total = required_entries_long_fname + 1;
 
-    uint32_t cluster;
+    uint32_t cluster = 0;
     uint8_t root_cluster[fs->cluster_size];
     uint8_t *start_entries = locate_entries(fs, root_cluster, dir, required_entries_total, &cluster);
 
@@ -414,10 +417,6 @@ static uint32_t sector_for_cluster(fat32 *fs, uint32_t cluster) {
     return fs->cluster_begin_sector + ((cluster - 2) * fs->bpb.number_of_sectors_per_cluster);
 }
 
-static void get_sector(fat32 *fs, uint8_t *buff, uint32_t sector, uint32_t count) {
-    ata_pio_read48(sector, count, buff);
-}
-
 static void put_sector(fat32 *fs, uint8_t *buff, uint32_t sector, uint32_t count) {
     uint32_t i;
     for(i = 0; i < count; i++) {
@@ -428,7 +427,7 @@ static void put_sector(fat32 *fs, uint8_t *buff, uint32_t sector, uint32_t count
 static void put_cluster(fat32 *fs, uint8_t *buff, uint32_t cluster_number) {
     uint32_t sector = sector_for_cluster(fs, cluster_number);
     uint32_t sector_count = fs->bpb.number_of_sectors_per_cluster;
-    putSector(fs, buff, sector, sector_count);
+    put_sector(fs, buff, sector, sector_count);
 }
 
 static void clear_cluster(fat32 *fs, uint32_t cluster){
@@ -511,7 +510,7 @@ static void write_filename(char *fname, uint8_t *buffer){
     }
 
     //Append formated fname 
-    uint32_t name_len = dot_index > -1 ? dot_index : len;
+    uint32_t name_len = dot_index > -1 ? (uint32_t)dot_index : len;
 
     //Name has to maximum length of 8 characters
     if(name_len > 8){

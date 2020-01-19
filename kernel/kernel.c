@@ -37,6 +37,8 @@ void kernel_main(void)
     init_keyboard();
     init_clock();
     init_threads();
+
+    terminal_clear();
     init_fs();
     
     //Registers commands for shell

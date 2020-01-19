@@ -7,6 +7,10 @@ void kernel_panic(const char *message){
 
     asm("cli");
 
+    // Message
+    terminal_setcolor(VGA_COLOR_RED);
+    printf(message);
+
     // Change color to red
     terminal_setcolor(VGA_COLOR_RED);
     printf("Kernel Panic!");
@@ -17,10 +21,6 @@ void kernel_panic(const char *message){
     printf("We are sorry, but a critical error occurred");
     printf("Please restart Your system");
     printf("\n\n");
-
-    // Message
-    terminal_setcolor(VGA_COLOR_RED);
-    printf(message);
 
     // Stop system
     while(1) asm("hlt");

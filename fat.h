@@ -77,7 +77,7 @@ typedef struct fat32 {
     uint32_t cluster_alloc_hint;
 } fat32;
 
-void init_fs(void);
+fat32* init_fs(void);
 void destroy_fs(void);
 fat32* get_filesystem(void);
 
