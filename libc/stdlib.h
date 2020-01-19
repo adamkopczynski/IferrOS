@@ -8,5 +8,6 @@ void abort(void);
 
 char* itoa(uint32_t num, char buffer[], int bufflen);
 uint8_t hex_char(uint8_t byte);
+void trim_spaces(char *c, int max);
 
 #endif

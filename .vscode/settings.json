@@ -2,6 +2,7 @@
     "files.associations": {
         "*.js": "javascriptreact",
         "stdint.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "ata_pio.h": "c"
     }
 }

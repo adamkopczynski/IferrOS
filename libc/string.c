@@ -60,3 +60,11 @@ int strcmp(const char* str, const char* str2){
 
 	return 0;
 }
+
+char to_upper(char c){
+
+	if(c >= 'a' && c <= 'z')
+		return 'A' + (c - 'a');
+
+	return c;
+}

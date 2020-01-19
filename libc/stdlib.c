@@ -1,5 +1,6 @@
 #include "stdlib.h"
 #include "stdio.h"
+#include <stddef.h>
 
 __attribute__((__noreturn__))
 void abort(void) {
@@ -66,4 +67,12 @@ uint8_t hex_char(uint8_t byte){
         }
     }
     return 0;
+}
+
+void trim_spaces(char *c, int max) {
+    int i = 0;
+    while(*c != ' ' && i++ < max) {
+        c++;
+    }
+    if(*c == ' ') *c = 0;
 }
