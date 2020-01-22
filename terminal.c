@@ -6,9 +6,13 @@
 #include "libc/string.h"
 #include "libc/stdlib.h"
 
+
 //Terminal static methods
 static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg);
 static inline uint16_t vga_entry(unsigned char uc, uint8_t color);
+static void move_cursor(uint8_t xpos, uint8_t ypos);
+static void terminal_scroll();
+
 
 //Terminal variables
 size_t terminal_row = 0;
@@ -22,6 +26,32 @@ static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
  
 static inline uint16_t vga_entry(unsigned char uc, uint8_t color) {
 	return (uint16_t) uc | (uint16_t) color << 8;
+}
+
+static void move_cursor(uint8_t xpos, uint8_t ypos){
+
+    uint16_t location = ypos * VGA_WIDTH + xpos;
+
+    outb(VGA_COMMAND_PORT, VGA_CURSOR_HIGH); // Set the high cursor byte
+    outb(VGA_DATA_PORT, location >> 8);
+    outb(VGA_COMMAND_PORT, VGA_CURSOR_LOW); // Set the low cursor byte
+    outb(VGA_DATA_PORT, location);
+}
+
+static void terminal_scroll(){
+
+    uint16_t blank = vga_entry(' ', terminal_color);
+
+    //Move the lines up
+    for(unsigned int i = VGA_WIDTH; i < VGA_WIDTH * VGA_HEIGHT; i++){
+		terminal_buffer[i] = terminal_buffer[i+VGA_WIDTH];
+    }
+
+    //Clear the last line
+    for(unsigned int i = (VGA_HEIGHT - 1) * VGA_WIDTH; i < VGA_HEIGHT * VGA_WIDTH; i++){
+        terminal_buffer[i] = blank;
+        terminal_column = 0;
+    }
 }
 
 void terminal_initialize(void){
@@ -48,6 +78,7 @@ void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) {
     
 	const size_t index = y * VGA_WIDTH + x;
 	terminal_buffer[index] = vga_entry(c, color);
+	move_cursor(x+1, y+1);
 }
 
 void terminal_putchar(char c) {
@@ -61,7 +92,8 @@ void terminal_putchar(char c) {
 	terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
 
 	if (++terminal_column == VGA_WIDTH) {
-		terminal_column = 0;
+		terminal_scroll();
+		
 		if (++terminal_row == VGA_HEIGHT)
 			terminal_row = 0;
 	}

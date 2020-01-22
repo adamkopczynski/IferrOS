@@ -9,6 +9,11 @@
 #define BS  (0x08)
 #define EOT (0x04)
 
+#define VGA_COMMAND_PORT 0x3D4
+#define VGA_DATA_PORT    0x3D5
+#define VGA_CURSOR_HIGH  14
+#define VGA_CURSOR_LOW   15
+
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 #define TERMINAL_BUFFER_ADDRESS 0xB8000

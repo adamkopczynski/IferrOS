@@ -11,13 +11,9 @@
 #include "buffer.h"
 
 UNI_LIST_C(commands, command_entry_t)
-UNI_LIST_C(history, char*)
 
 //Static helpers
 void command_help(const char* argv, uint32_t argc);
-// static void add_text_to_history(char *text);
-// static void shell_prev_command(void);
-// static void shell_next_command(void);
 
 struct list_commands_t *commands_list = NULL;
 struct list_history_t *history_list = NULL;
@@ -25,7 +21,6 @@ struct list_history_t *history_list = NULL;
 void init_shell(void){
 
     commands_list = list_commands_create();
-    history_list = list_history_create();
 
     register_shell_command("help", "Display commands list", command_help);
 }
@@ -35,7 +30,11 @@ void shell_main(void){
     char command[MAX_COMMAND_LENGTH];
     
     while(1){
+
+        terminal_setcolor(VGA_COLOR_GREEN);
         printf("IferrOS user$ ");
+
+        terminal_setcolor(VGA_COLOR_WHITE);
         gets(command, MAX_COMMAND_LENGTH+1);
 
         if(!run_program(command))
@@ -46,11 +45,13 @@ void shell_main(void){
 
 void command_help(const char* argv, uint32_t argc){
 
+    terminal_setcolor(VGA_COLOR_BLUE);
     printf("| Command           | Description\n");
 
     struct node_commands_t *current = commands_list->head;
 
-    while(current!=NULL){
+    terminal_setcolor(VGA_COLOR_WHITE);
+    while(current != NULL){
 
         command_entry_t command_entry = current->data;
 
