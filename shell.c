@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include "shell.h"
 #include "terminal.h"
-#include "list.h"
+#include "l_list.h"
 #include "threads.h"
 #include "keyboard.h"
 #include "heap.h"
@@ -10,17 +10,15 @@
 #include "libc/string.h"
 #include "buffer.h"
 
-UNI_LIST_C(commands, command_entry_t)
-
 //Static helpers
 void command_help(const char* argv, uint32_t argc);
 
-struct list_commands_t *commands_list = NULL;
-struct list_history_t *history_list = NULL;
+ll_t *commands_list = NULL;
+ll_t *history_list = NULL;
 
 void init_shell(void){
 
-    commands_list = list_commands_create();
+    commands_list = ll_init();
 
     register_shell_command("help", "Display commands list", command_help);
 }
@@ -48,17 +46,17 @@ void command_help(const char* argv, uint32_t argc){
     terminal_setcolor(VGA_COLOR_BLUE);
     printf("| Command           | Description\n");
 
-    struct node_commands_t *current = commands_list->head;
+    node_t *current = commands_list->head;
 
     terminal_setcolor(VGA_COLOR_WHITE);
     while(current != NULL){
 
-        command_entry_t command_entry = current->data;
+        command_entry_t *command_entry = (command_entry_t*)(current->data);
 
-        uint32_t len = printf("| %s", command_entry.command);
+        uint32_t len = printf("| %s", command_entry->command);
         for(; len<20; len++) printf(" ");
 
-        printf("| %s\n", command_entry.description);
+        printf("| %s\n", command_entry->description);
 
         current = current->next;
     }
@@ -66,26 +64,26 @@ void command_help(const char* argv, uint32_t argc){
 
 void register_shell_command(char *command, char *description, command_function_t fun){
 
-    command_entry_t command_entry;
+    command_entry_t *command_entry = (command_entry_t*)kmalloc(sizeof(command_entry_t));
 
-    command_entry.command = command;
-    command_entry.description = description;
-    command_entry.fun = fun;
+    command_entry->command = command;
+    command_entry->description = description;
+    command_entry->fun = fun;
 
-    list_commands_push_back(commands_list, command_entry);
+    ll_push_back(commands_list, (void*)command_entry);
 }
 
 int run_program(char *command){
 
-    struct node_commands_t *current = commands_list->head;
+    node_t *current = commands_list->head;
 
     while(current!=NULL){
 
-        command_entry_t command_entry = current->data;
+        command_entry_t *command_entry = (command_entry_t*)(current->data);
 
-        if(strcmp(command_entry.command, command) == 0){
+        if(strcmp(command_entry->command, command) == 0){
 
-            command_function_t fun = command_entry.fun;
+            command_function_t fun = command_entry->fun;
             fun(command, 0);
 
             return 1;

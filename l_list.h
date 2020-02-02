@@ -30,7 +30,7 @@ int ll_push_back(ll_t *, void *);
 /*  remove functions */
 void *ll_remove(ll_t *, int);
 void *ll_pop_front(ll_t *);
-void *ll_pop_back(ll_t *);s
+void *ll_pop_back(ll_t *);
 
 /*  destructive functions */
 void ll_clear(ll_t *);
