@@ -111,10 +111,10 @@ void terminal_write(const char* data, size_t size) {
 		terminal_putchar(data[i]);
 }
  
-void terminal_writestring(const char* data) {
+int terminal_writestring(const char* data) {
 
 	terminal_write(data, strlen(data));
-
+	return strlen(data);
 }
 
 void terminal_clear(void){
@@ -139,14 +139,16 @@ void terminal_workspace_clear(void){
 
 }
 
-void terminal_write_dec(uint32_t d){
+int terminal_write_dec(uint32_t d){
 
     char buff[13];
     char *x = itoa(d, buff, 13);
     terminal_writestring(x);
+
+	return strlen(x);
 }
 
-void terminal_write_hex(uint32_t d){
+int terminal_write_hex(uint32_t d){
 
     terminal_writestring("0x");
     for(int i = 28; i >= 0; i-=4)
@@ -154,6 +156,7 @@ void terminal_write_hex(uint32_t d){
         terminal_putchar(hex_char(d>>i));
     }
 
+	return 10;
 }
 
 void command_clear(const char* argv, uint32_t argc){

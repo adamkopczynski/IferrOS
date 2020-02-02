@@ -33,11 +33,15 @@ int printf(char *fmt, ...) {
     va_start(argp, fmt);
 
     char *p;
+    int len = 0;
+
     for(p = fmt; *p != 0; p++) {
         if(*p != '%') {
             terminal_putchar(*p);
+            len++;
             continue;
         }
+
         p++; // Skip the %
         int i;
         char *s;
@@ -45,21 +49,23 @@ int printf(char *fmt, ...) {
         case 'c':
             i = va_arg(argp, int);
             terminal_putchar(i);
+            len++;
             break;
         case 's':
             s = va_arg(argp, char *);
-            terminal_writestring(s);
+            len += terminal_writestring(s);
             break;
         case 'd':
             i = va_arg(argp, int);
-            terminal_write_dec(i);
+            len += terminal_write_dec(i);
             break;
         case 'x':
             i = va_arg(argp, int);
-            terminal_write_hex(i);
+            len += terminal_write_hex(i);
             break;
         case '%':
             terminal_putchar('%');
+            len++;
             break;
         default:
             terminal_putchar('%');
