@@ -73,7 +73,8 @@ int printf(char *fmt, ...) {
             break;
         }
     }
-    return 0;
+    
+    return len;
 }
 
 int gets(char* text, int size){
