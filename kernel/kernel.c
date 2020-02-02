@@ -39,12 +39,12 @@ void kernel_main(void)
     init_threads();
 
     terminal_clear();
-    init_fs();
+    // init_fs();
     
     //Registers commands for shell
     register_heap_stats();
     register_terminal_commands();
-    register_fat_shell_api();
+    // register_fat_shell_api();
 
     printf("Kernel initialized!\nHello in IferrOS");
 

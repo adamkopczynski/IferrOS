@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "terminal.h"
 #include "shell.h"
+#include "ports.h"
 #include "libc/string.h"
 #include "libc/stdlib.h"
 
@@ -52,6 +53,8 @@ static void terminal_scroll(){
         terminal_buffer[i] = blank;
         terminal_column = 0;
     }
+
+	terminal_row--;
 }
 
 void terminal_initialize(void){
@@ -78,7 +81,7 @@ void terminal_putentryat(char c, uint8_t color, size_t x, size_t y) {
     
 	const size_t index = y * VGA_WIDTH + x;
 	terminal_buffer[index] = vga_entry(c, color);
-	move_cursor(x+1, y+1);
+	move_cursor(x+1, y);
 }
 
 void terminal_putchar(char c) {
@@ -92,10 +95,12 @@ void terminal_putchar(char c) {
 	terminal_putentryat(c, terminal_color, terminal_column, terminal_row);
 
 	if (++terminal_column == VGA_WIDTH) {
+		terminal_column = 0;
+		terminal_row++;	
+	}
+
+	if(terminal_row >= VGA_HEIGHT){
 		terminal_scroll();
-		
-		if (++terminal_row == VGA_HEIGHT)
-			terminal_row = 0;
 	}
 
 }

@@ -31,7 +31,7 @@ void shell_main(void){
     
     while(1){
 
-        terminal_setcolor(VGA_COLOR_GREEN);
+        terminal_setcolor(VGA_COLOR_LIGHT_GREEN);
         printf("IferrOS user$ ");
 
         terminal_setcolor(VGA_COLOR_WHITE);
@@ -45,7 +45,7 @@ void shell_main(void){
 
 void command_help(const char* argv, uint32_t argc){
 
-    terminal_setcolor(VGA_COLOR_BLUE);
+    terminal_setcolor(VGA_COLOR_LIGHT_BLUE);
     printf("| Command           | Description\n");
 
     struct node_commands_t *current = commands_list->head;
