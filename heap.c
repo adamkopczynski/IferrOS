@@ -140,17 +140,22 @@ void heap_stats(const char* argv, uint32_t argc){
 
     memory_block_t *current = mlist.head;
 
-    // terminal_setcolor(VGA_COLOR_LIGHT_MAGENTA);
+    terminal_setcolor(VGA_COLOR_LIGHT_BLUE);
     printf("| BEGIN          | LEN            | TYPE           | FILE           | LINE\n");
-    // terminal_setcolor(VGA_COLOR_WHITE);
+
+    terminal_setcolor(VGA_COLOR_WHITE);
     for(uint32_t i=0; i<mlist.size; i++)
     {
         int count = printf("| %d", (unsigned int)current);
         for(; count<8; count++) printf(" ");
         count = printf("| %d", current->size);
         for(; count<8; count++) printf(" ");
+
+        terminal_setcolor(VGA_COLOR_LIGHT_MAGENTA);
         if(current->state == FREE) count = printf("| Free");
         if(current->state == USED) count = printf("| Used");
+
+        terminal_setcolor(VGA_COLOR_WHITE);
         for(; count<8; count++) printf(" ");
         if(current->state==USED) count = printf("| %s", current->filename);
         else count = printf("| ");

@@ -27,12 +27,12 @@ typedef struct mem_list{
     uint32_t size;
 } memory_list_t;
 
-// Makra
+
 #define kmalloc(_size) __kmalloc(_size, __FILE__, __LINE__);
 #define kcalloc(_size) __kcalloc(_size, __FILE__, __LINE__);
 #define krealloc(_ptr, _size) __krealloc(_ptr, _size, __FILE__, __LINE__);
 
-// Prototypy
+// Prototypes
 void init_heap(void);
 void heap_full_initialize(void);
 
