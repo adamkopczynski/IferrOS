@@ -87,7 +87,7 @@ int gets(char* text, int size){
 				return len;
 			}
 			else if(c == '\b' && len > 0){
-				//TODO remove last displayed character
+				terminal_remove_last_char();
 				len--;
 			}
 			else{

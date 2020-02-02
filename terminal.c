@@ -160,6 +160,10 @@ void command_clear(const char* argv, uint32_t argc){
 	terminal_clear();
 }
 
+void terminal_remove_last_char(void){
+	terminal_putentryat(' ', terminal_color, --terminal_column, --terminal_row);
+}
+
 void register_terminal_commands(void){
 	register_shell_command("clear", "Clear terminal", command_clear);
 }
