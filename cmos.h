@@ -16,7 +16,7 @@ struct date_struct_t {
     uint8_t year;
 };
 
-typedef date_struct_t date_t;
+typedef struct date_struct_t date_t;
 
 void read_rtc(void);
 void register_date_command(void);

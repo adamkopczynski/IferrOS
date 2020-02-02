@@ -18,6 +18,7 @@
 #include "../clock.h"
 #include "../fat.h"
 #include "../fat_shell.h"
+#include "../cmos.h"
 
 //Libc
 #include "../libc/stdio.h"
@@ -44,6 +45,7 @@ void kernel_main(void)
     //Registers commands for shell
     register_heap_stats();
     register_terminal_commands();
+    register_date_command();
     // register_fat_shell_api();
 
     printf("Kernel initialized!\nHello in IferrOS");
