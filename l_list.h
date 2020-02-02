@@ -17,9 +17,9 @@ typedef struct {
 ll_t *ll_init();
 
 /*  get/find functions */
-node_t *ll_get(ll_t *, int);
-node_t *ll_first(ll_t *);
-node_t *ll_last(ll_t *);
+void *ll_get(ll_t *, int);
+void *ll_first(ll_t *);
+void *ll_last(ll_t *);
 
 /*  add functions */
 int ll_add(ll_t *, void *, int);

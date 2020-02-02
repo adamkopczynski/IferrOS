@@ -105,7 +105,7 @@ void *ll_remove(ll_t * l, int pos){
 		current = current->next;
 
     if(!current->next){
-        return dll_pop_back(l);
+        return ll_pop_back(l);
     }
 
     if(current->prev){
@@ -116,7 +116,7 @@ void *ll_remove(ll_t * l, int pos){
         current->next->prev = current->prev;
     }
 
-    free(current);
+    kfree(current);
 
 	return current->data;
 }
