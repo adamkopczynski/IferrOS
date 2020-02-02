@@ -3,6 +3,7 @@
         "*.js": "javascriptreact",
         "stdint.h": "c",
         "stdio.h": "c",
-        "ata_pio.h": "c"
+        "ata_pio.h": "c",
+        "cmos.h": "c"
     }
 }

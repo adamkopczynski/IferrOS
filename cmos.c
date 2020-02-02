@@ -1,9 +1,11 @@
 #include "cmos.h"
 #include "shell.h"
 #include "ports.h"
+#include "libc/stdio.h"
 
 static int get_update_in_progress_flag();
 static unsigned char get_RTC_register(int reg);
+static void format_date(const char* argv, uint32_t argc);
 
 int century_register = 0x00;
 
@@ -69,7 +71,7 @@ void read_rtc(void){
       if (!(registerB & 0x04)) {
             date.second = (date.second & 0x0F) + ((date.second / 16) * 10);
             date.minute = (date.minute & 0x0F) + ((date.minute / 16) * 10);
-            date.hour = ( (date.hour & 0x0F) + (((date.hour & 0x70) / 16) * 10) ) | (hour & 0x80);
+            date.hour = ( (date.hour & 0x0F) + (((date.hour & 0x70) / 16) * 10) ) | (date.hour & 0x80);
             date.day = (date.day & 0x0F) + ((date.day / 16) * 10);
             date.month = (date.month & 0x0F) + ((date.month / 16) * 10);
             date.year = (date.year & 0x0F) + ((date.year / 16) * 10);
@@ -94,7 +96,14 @@ void read_rtc(void){
       }
 }
 
-void register_date_command(void);
+void register_date_command(void){
+    register_shell_command("date", "Display current date", format_date);
+}
+
+static void format_date(const char* argv, uint32_t argc){
+    read_rtc();
+    printf("%d/%d/%d %d:%d:%d", date.day, date.month, date.year, date.hour, date.minute, date.second);
+}
 
 static int get_update_in_progress_flag() {
       outb(CMOS_ADDRESS, 0x0A);
