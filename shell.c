@@ -14,7 +14,6 @@
 void command_help(const char* argv, uint32_t argc);
 
 ll_t *commands_list = NULL;
-ll_t *history_list = NULL;
 
 void init_shell(void){
 
