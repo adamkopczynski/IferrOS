@@ -102,7 +102,7 @@ void register_date_command(void){
 
 static void format_date(const char* argv, uint32_t argc){
     read_rtc();
-    printf("%d/%d/%d %d:%d:%d", date.day, date.month, date.year, date.hour, date.minute, date.second);
+    printf("%d/%d/%d %d:%d:%d\n", date.day, date.month, CURRENT_YEAR, date.hour, date.minute, date.second);
 }
 
 static int get_update_in_progress_flag() {

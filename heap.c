@@ -144,8 +144,8 @@ void heap_stats(const char* argv, uint32_t argc){
     printf("| BEGIN          | LEN            | TYPE           | FILE           | LINE\n");
 
     terminal_setcolor(VGA_COLOR_WHITE);
-    for(uint32_t i=0; i<mlist.size; i++)
-    {
+    for(uint32_t i=0; i<mlist.size; i++){
+        
         int count = printf("| %d", (unsigned int)current);
         for(; count<8; count++) printf(" ");
         count = printf("| %d", current->size);
