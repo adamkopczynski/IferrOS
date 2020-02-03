@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include "terminal.h"
-#include "list.h"
 
 #define MAX_COMMAND_LENGTH 250
 
@@ -14,9 +13,6 @@ typedef struct command_entry{
     const char *description;
     command_function_t fun;
 } command_entry_t;
-
-UNI_LIST_H(commands, command_entry_t)
-UNI_LIST_H(history, char*)
 
 void init_shell(void);
 void shell_main(void);

@@ -6,15 +6,13 @@
 #include "pic.h"
 #include "clock.h"
 #include "sys.h"
-#include "list.h"
+#include "l_list.h"
 #include "libc/stdio.h"
 
-UNI_LIST_C(threads, thread_t*)
-
 //All threads lists
-THREADS_LIST *waiting_threads;         
-THREADS_LIST *active_threads;          
-THREADS_LIST *terminated_threads;
+ll_t *waiting_threads;         
+ll_t *active_threads;          
+ll_t *terminated_threads;
 
 //All threads ids
 thread_t *threads_ids[THREAD_MAX_COUNT] = {0};
@@ -31,13 +29,13 @@ static void push_thread32(thread_t *t, uint32_t val);
 static void push_thread8(thread_t *t, uint8_t val);
 static void on_thread_close(void);
 static void find_next_thread(thread_state_t state);
-static THREADS_NODE *find_node_with_id(THREADS_LIST *l, uint32_t id);
+static node_t *find_node_with_id(ll_t *l, uint32_t id, uint32_t* list_id);
 static uint32_t find_thread_id(void);
 
 void init_threads(void){
-    waiting_threads = list_threads_create();
-    active_threads = list_threads_create();
-    terminated_threads = list_threads_create();
+    waiting_threads = ll_init();
+    active_threads = ll_init();
+    terminated_threads = ll_init();
 
 
     // Kernel thread
@@ -64,7 +62,7 @@ uint32_t create_thread(uint32_t task_addr){
     push_thread32(new_thread, (uint32_t)on_thread_close);
 
     // Add thread to waiting list
-    list_threads_push_back(waiting_threads, new_thread);
+    ll_push_back(waiting_threads, new_thread);
 
     return new_thread->thread_id;
 }
@@ -82,7 +80,7 @@ uint32_t create_kernel_thread(void){
     new_thread->thread_id = find_thread_id();
     threads_ids[new_thread->thread_id] = new_thread;
 
-    list_threads_push_back(active_threads, new_thread);
+    ll_push_back(active_threads, new_thread);
 
     return new_thread->thread_id;
 }
@@ -96,8 +94,9 @@ void destroy_thread(uint32_t id){
     // If thread has waiting status
     if(thread->state == THREAD_WAITING_FOR_START){
 
-        THREADS_NODE *node = find_node_with_id(waiting_threads, id);
-        list_threads_remove_node(waiting_threads, node);
+        uint32_t id_at_list= 0;
+        node_t *node = find_node_with_id(waiting_threads, id, &id_at_list);
+        ll_remove(waiting_threads, id_at_list);
 
     }
 
@@ -105,16 +104,18 @@ void destroy_thread(uint32_t id){
     else if(thread->state == THREAD_READY || thread->state == THREAD_RUNNING){
 
         terminate_thread(id);
-        THREADS_NODE *node = find_node_with_id(terminated_threads, id);
-        list_threads_remove_node(terminated_threads, node);
+        uint32_t id_at_list= 0;
+        node_t *node = find_node_with_id(terminated_threads, id, &id_at_list);
+        ll_remove(terminated_threads, id_at_list);
 
     }
 
     // If thread is stopped
-    else if(thread->state == THREAD_END)
-    {
-        THREADS_NODE *node = find_node_with_id(terminated_threads, id);
-        list_threads_remove_node(terminated_threads, node);
+    else if(thread->state == THREAD_END){
+
+        uint32_t id_at_list= 0;
+        node_t *node = find_node_with_id(terminated_threads, id, &id_at_list);
+        ll_remove(terminated_threads, id_at_list);
     }
 
     // Free memory
@@ -130,9 +131,10 @@ void start_thread(uint32_t id){
 
     sys_cli();
 
-    THREADS_NODE *node = find_node_with_id(waiting_threads, id);
-    thread_t *activated = list_threads_remove_node(waiting_threads, node);
-    list_threads_push_back(active_threads, activated);
+    uint32_t id_at_list= 0;
+    node_t *node = find_node_with_id(waiting_threads, id, &id_at_list);
+    thread_t *activated = ll_remove(waiting_threads, id_at_list);
+    ll_push_back(active_threads, activated);
 
     sys_sti();
 }
@@ -146,10 +148,10 @@ void terminate_thread(uint32_t id){
     if(current->thread_id == id)
         find_next_thread(THREAD_END);
     else{
-
-        THREADS_NODE *node = find_node_with_id(active_threads, id);
-        thread_t *stopped = list_threads_remove_node(active_threads, node);
-        list_threads_push_back(terminated_threads, stopped);
+        uint32_t id_at_list= 0;
+        node_t *node = find_node_with_id(active_threads, id, &id_at_list);
+        thread_t *stopped = ll_remove(active_threads, id_at_list);
+        ll_push_back(terminated_threads, stopped);
     
     }
 
@@ -186,12 +188,12 @@ static void find_next_thread(thread_state_t state){
 
     if(state == THREAD_END){
         
-        thread_t *terminated = list_threads_pop_front(active_threads);
-        list_threads_push_back(terminated_threads, terminated);
+        thread_t *terminated = ll_pop_front(active_threads);
+        ll_push_back(terminated_threads, terminated);
     }
 
-    thread_t *next = list_threads_pop_back(active_threads);
-    list_threads_push_front(active_threads, next);
+    thread_t *next = ll_pop_front(active_threads);
+    ll_push_front(active_threads, next);
 
     // Set new time quants for next thread
     time_quants = next->priority;
@@ -232,14 +234,17 @@ static uint32_t find_thread_id(void){
     return 0;
 }
 
-static THREADS_NODE *find_node_with_id(THREADS_LIST *l, uint32_t id){
+static node_t *find_node_with_id(ll_t *l, uint32_t id, uint32_t *id_at_list){
 
-    THREADS_NODE *current = l->head;
+    node_t *current = l->head;
+    *id_at_list = 0;
 
     while(current != NULL){
 
-        if(current->data->thread_id == id) return current;
+        thread_t* current_thread = (thread_t*)(current->data);
+        if(current_thread->thread_id == id) return current;
         current = current->next;
+        *id_at_list++;
     }
 
     kernel_panic("Thread with given id didn't found");
@@ -248,7 +253,7 @@ static THREADS_NODE *find_node_with_id(THREADS_LIST *l, uint32_t id){
 
 thread_t *get_current_thread(void){
 
-    return list_threads_front(active_threads);
+    return (thread_t*)ll_front(active_threads);
 }
 
 //Push 32 bits to thread stack
@@ -292,10 +297,4 @@ void debug_display_stack(uint32_t id){
     }
 
     pause();
-}
-
-
-void yield(void){
-
-    find_next_thread(THREAD_READY);
 }

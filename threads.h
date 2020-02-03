@@ -3,7 +3,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "list.h"
 
 //Stack size
 #define THREAD_STACK_SIZE 0x4000
@@ -32,11 +31,6 @@ typedef struct thread_t {
     uint32_t process_pid;
     enum thread_state_t state;
 } thread_t;
-
-//Threads list
-UNI_LIST_H(threads, thread_t*)
-typedef struct list_threads_t THREADS_LIST;
-typedef struct node_threads_t THREADS_NODE;
 
 void init_threads(void);
 uint32_t create_kernel_thread(void);
